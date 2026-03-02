@@ -1,699 +1,791 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>FINANÇAS 2026</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-thumb { border-radius: 3px; }
-@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-.fade { animation: fadeUp 0.25s ease; }
-.txr { transition: background 0.12s; border-radius: 12px; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f14;--sur:#161921;--sur2:#1a1f2e;
+  --bd:#1f2333;--bd2:#2e3347;
+  --tx:#e8eaf0;--mu:#8892a4;--fa:#4a5168;
+  --g:#4ade80;--gbg:rgba(74,222,128,0.1);--gbd:rgba(74,222,128,0.3);
+  --r:#f87171;--rbg:rgba(248,113,113,0.1);--rbd:rgba(248,113,113,0.3);
+  --y:#fbbf24;--sh:0 4px 24px rgba(0,0,0,0.35);
+}
+.lt{
+  --bg:#f0f4f8;--sur:#fff;--sur2:#eef2f7;
+  --bd:#dde3ec;--bd2:#c8d0dc;
+  --tx:#1a2035;--mu:#4a5878;--fa:#8896aa;
+  --g:#16a34a;--gbg:rgba(22,163,74,0.08);--gbd:rgba(22,163,74,0.25);
+  --r:#dc2626;--rbg:rgba(220,38,38,0.07);--rbd:rgba(220,38,38,0.25);
+  --y:#b45309;--sh:0 4px 24px rgba(0,0,0,0.07);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+input,select{background:var(--sur2);border:1px solid var(--bd2);border-radius:8px;padding:8px 11px;color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;width:100%;transition:border .15s}
+input:focus,select:focus{border-color:var(--g)!important}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+.card{background:var(--sur);border:1px solid var(--bd);border-radius:16px;padding:22px;box-shadow:var(--sh);transition:background .3s,border .3s}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fu .22s ease}
+
+/* NAV */
+#nav{position:sticky;top:0;z-index:100;background:rgba(22,25,33,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);transition:background .3s,border .3s}
+.lt #nav{background:rgba(255,255,255,.96)}
+.ni{max-width:1060px;margin:0 auto;padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-ic{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#4ade80,#22d3ee);display:flex;align-items:center;justify-content:center;font-size:17px;transition:background .3s}
+.lt .logo-ic{background:linear-gradient(135deg,#16a34a,#0891b2)}
+.logo-t{font-size:15px;font-weight:800;letter-spacing:2px;text-transform:uppercase;line-height:1}
+.logo-s{font-size:10px;color:var(--fa);margin-top:2px}
+.nav-r{display:flex;gap:10px;align-items:center}
+.btn-th{background:var(--sur2);border:1px solid var(--bd);color:var(--tx);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;transition:all .2s}
+.btn-sw{background:none;border:1px solid var(--bd);color:var(--fa);border-radius:20px;padding:6px 12px;font-size:11px;font-weight:600;transition:all .15s}
+.btn-sw:hover{border-color:var(--r);color:var(--r)}
+
+/* MAIN */
+#main{max-width:1060px;margin:0 auto;padding:28px 24px}
+
+/* MONTH TABS */
+.mtabs-wrap{overflow-x:auto;margin-bottom:28px;padding-bottom:2px}
+.mtabs{background:var(--sur);border:1px solid var(--bd);border-radius:14px;padding:5px;display:inline-flex;gap:3px;min-width:max-content;box-shadow:var(--sh)}
+.mtab{padding:7px 14px;border-radius:10px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--fa);white-space:nowrap;transition:all .18s}
+.mtab.has{color:var(--tx)}
+.mtab.on{background:var(--g);color:#0d0f14}
+.lt .mtab.on{color:#fff}
+.mtab .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--g);margin-left:5px;vertical-align:middle}
+.tsep{width:1px;background:var(--bd);margin:4px 4px}
+.ytab{padding:7px 16px;border-radius:10px;font-size:12px;font-weight:700;border:none;background:transparent;color:var(--y);white-space:nowrap;transition:all .18s}
+.ytab.on{background:var(--y);color:#0d0f14}
+
+/* SUMMARY GRID */
+.sgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:28px}
+
+/* SALDO */
+.scard{background:linear-gradient(145deg,#161921,#1a2440);border:1px solid #2a3a60!important;position:relative;overflow:hidden}
+.lt .scard{background:var(--sur)!important;border:1px solid var(--bd)!important}
+.sglow{position:absolute;top:-24px;right:-24px;width:110px;height:110px;border-radius:50%;opacity:.07;pointer-events:none}
+.slbl{font-size:10px;letter-spacing:2.5px;color:var(--fa);text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.sval{font-size:30px;font-weight:800;line-height:1;transition:color .3s}
+.smg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.smb{border-radius:12px;padding:10px 12px}
+.smb.g{background:var(--gbg);border:1px solid var(--gbd)}
+.smb.r{background:var(--rbg);border:1px solid var(--rbd)}
+.sml{font-size:9px;color:var(--fa);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.smv{font-size:13px;font-weight:700}
+.smv.g{color:var(--g)}
+.smv.r{color:var(--r)}
+.prow{display:flex;justify-content:space-between;margin-bottom:5px;margin-top:16px}
+.plbl{font-size:10px;color:var(--fa)}
+.ppct{font-size:10px;font-weight:700}
+.pbar{height:6px;background:var(--bd);border-radius:3px;overflow:hidden}
+.pfill{height:100%;border-radius:3px;transition:width .6s,background .3s}
+
+/* PANEL */
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ptitle{font-size:10px;letter-spacing:2.5px;color:var(--fa);text-transform:uppercase;font-weight:600}
+.btn-mg{background:transparent;border:1px solid var(--bd);color:var(--fa);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:600;transition:all .2s}
+.btn-mg.og{background:var(--gbg);border-color:var(--g);color:var(--g)}
+.btn-mg.or{background:var(--rbg);border-color:var(--r);color:var(--r)}
+
+/* CAT TABS */
+.ctabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.ctab{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--bd);background:transparent;color:var(--fa);transition:all .15s}
+.ctab.has{color:var(--tx);border-color:var(--bd2)}
+.ctab.ong{background:var(--g);color:#0d0f14;border-color:var(--g)}
+.lt .ctab.ong{color:#fff}
+.ctab.onr{background:var(--r);color:#fff;border-color:var(--r)}
+.cdot{display:inline-block;width:4px;height:4px;border-radius:50%;margin-left:5px;vertical-align:middle}
+
+/* MANAGE BOX */
+.mbox{background:var(--bg);border-radius:12px;padding:12px;margin-bottom:8px}
+.lt .mbox{background:var(--sur2)}
+.mhint{font-size:11px;color:var(--fa);margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{display:flex;align-items:center;background:var(--sur);border-radius:20px;overflow:hidden}
+.chip.cg{border:1px solid var(--g)}
+.chip.cr{border:1px solid var(--r)}
+.chip.cn{border:1px solid var(--bd)}
+.chlbl{font-size:11px;font-weight:600;color:var(--fa);padding:4px 10px}
+.chip.cg .chlbl{color:var(--g)}
+.chip.cr .chlbl{color:var(--r)}
+.chdot{font-size:8px;margin-left:2px}
+.chdel{background:transparent;border:none;border-left:1px solid var(--bd);color:var(--fa);padding:4px 8px;font-size:12px;transition:all .15s}
+.chdel:hover{background:var(--rbg);color:var(--r)}
+.atr{display:flex;gap:6px}
+.bpg{background:var(--g);color:#0d0f14;border:none;border-radius:8px;padding:0 14px;height:36px;font-weight:700;font-size:13px}
+.lt .bpg{color:#fff}
+.bpr{background:var(--r);color:#fff;border:none;border-radius:8px;padding:0 14px;height:36px;font-weight:700;font-size:13px}
+
+/* TX ITEMS */
+.tlist{display:flex;flex-direction:column;gap:6px;min-height:52px}
+.tempty{font-size:12px;color:var(--fa);padding:4px 0}
+.titem{display:flex;align-items:center;justify-content:space-between;border-radius:10px;padding:8px 12px;gap:8px}
+.titem.ig{background:var(--gbg);border:1px solid var(--gbd)}
+.titem.ir{background:var(--rbg);border:1px solid var(--rbd)}
+.tinfo{flex:1;min-width:0}
+.tdesc{font-size:12px;font-weight:600;color:var(--tx);cursor:text;border-bottom:1px dashed transparent;transition:border-color .15s;display:inline-block;max-width:100%}
+.tdesc:hover{border-bottom-color:var(--g)}
+.tdate{font-size:10px;color:var(--fa);margin-top:1px}
+.tr{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.tamt{font-size:14px;font-weight:700;cursor:text;border-bottom:1px dashed transparent;transition:border-color .15s;white-space:nowrap}
+.tamt:hover{border-bottom-color:currentColor}
+.tamt.g{color:var(--g)}
+.tamt.r{color:var(--r)}
+.bdel{background:var(--rbg);border:1px solid var(--rbd);color:var(--r);border-radius:6px;width:26px;height:26px;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.bdel:hover{background:var(--rbd)}
+
+/* ADD FORM */
+.aform{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.afrow{display:flex;gap:6px}
+.bcg{background:var(--g);color:#0d0f14;border:none;border-radius:8px;padding:0 14px;height:36px;font-weight:700;font-size:13px;flex-shrink:0}
+.lt .bcg{color:#fff}
+.bcr{background:var(--r);color:#fff;border:none;border-radius:8px;padding:0 14px;height:36px;font-weight:700;font-size:13px;flex-shrink:0}
+.bcanc{background:none;border:none;color:var(--fa);font-size:16px;padding:0 4px;flex-shrink:0}
+.badg{background:none;border:1px dashed var(--bd);border-radius:8px;padding:7px 10px;color:var(--fa);font-size:11px;text-align:left;transition:all .15s;margin-top:2px;width:100%}
+.badg.gr:hover{border-color:var(--g);color:var(--g)}
+.badg.rd:hover{border-color:var(--r);color:var(--r)}
+.notabs{font-size:12px;color:var(--fa)}
+
+/* CHARTS */
+.cgrid{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;margin-bottom:28px}
+.ctit{font-size:12px;font-weight:700;color:var(--mu);margin-bottom:2px}
+.csub{font-size:11px;color:var(--fa);margin-bottom:14px}
+.pleg{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.plr{display:flex;align-items:center;justify-content:space-between}
+.pll{display:flex;align-items:center;gap:7px}
+.pdot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.pnm{font-size:11px;color:var(--mu)}
+.pvl{font-size:11px;font-weight:700;color:var(--tx)}
+
+/* LOG */
+.lh{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.lt2{font-size:13px;font-weight:700}
+.lc{margin-left:8px;background:var(--sur2);border:1px solid var(--bd);padding:2px 8px;border-radius:20px;font-size:11px;color:var(--fa);font-weight:500}
+.ls{font-size:11px;color:var(--fa);margin-top:2px}
+.ftabs{display:flex;gap:5px}
+.ftab{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--bd);background:transparent;color:var(--fa);transition:all .15s}
+.ftab.on{background:var(--tx);color:var(--sur);border-color:var(--tx)}
+.llist{display:flex;flex-direction:column;gap:2px}
+.li{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;transition:background .12s}
+.li:hover{background:var(--sur2)}
+.ll{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.lic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.lic.g{background:var(--gbg);border:1px solid var(--gbd);color:var(--g)}
+.lic.r{background:var(--rbg);border:1px solid var(--rbd);color:var(--r)}
+.ldesc{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lmeta{font-size:11px;color:var(--fa);margin-top:1px}
+.lright{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.lamt{font-size:14px;font-weight:700}
+.lamt.g{color:var(--g)}
+.lamt.r{color:var(--r)}
+.bld{background:none;border:none;color:var(--bd2);font-size:14px;transition:color .15s;padding:2px 4px}
+.bld:hover{color:var(--r)}
+.lempty{text-align:center;color:var(--fa);padding:32px 0;font-size:13px}
+
+/* YEAR */
+.ygrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:24px}
+.ytc{border-radius:16px;padding:22px;box-shadow:var(--sh)}
+.ytc.gc{background:var(--gbg);border:1px solid var(--gbd)}
+.ytc.rc{background:var(--rbg);border:1px solid var(--rbd)}
+.ytl{font-size:10px;color:var(--fa);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;font-weight:600}
+.ytv{font-size:28px;font-weight:700}
+.ycharts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
+.ymtabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;padding:6px;background:var(--sur2);border-radius:14px;border:1px solid var(--bd)}
+.ymtab{padding:6px 13px;border-radius:10px;font-size:12px;font-weight:600;border:1px solid var(--bd);background:transparent;color:var(--fa);transition:all .18s}
+.ymtab.has{color:var(--tx);border-color:var(--bd2)}
+.ymtab.on{background:var(--tx);color:var(--sur);border-color:var(--tx)}
+.ymdot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-left:4px;vertical-align:middle}
+.ymd{animation:fu .2s ease}
+.ymsg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px}
+.ymsc{background:var(--sur2);border:1px solid var(--bd);border-radius:12px;padding:12px 16px}
+.ymsl{font-size:9px;color:var(--fa);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;font-weight:600}
+.ymsv{font-size:20px;font-weight:700}
+.ymtl{display:flex;flex-direction:column;gap:2px;max-height:320px;overflow-y:auto}
+.ymti{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:10px;background:var(--sur2);border:1px solid var(--bd);margin-bottom:2px}
+.ymtic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.ymtic.g{background:var(--gbg);border:1px solid var(--gbd);color:var(--g)}
+.ymtic.r{background:var(--rbg);border:1px solid var(--rbd);color:var(--r)}
+.ymti-info{flex:1;min-width:0;margin-left:10px}
+.ymtidesc{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ymticat{font-size:10px;color:var(--fa)}
+.ymtiamt{font-size:13px;font-weight:700;flex-shrink:0}
+.ymtiamt.g{color:var(--g)}
+.ymtiamt.r{color:var(--r)}
+.ymgoto{margin-top:14px;text-align:center}
+.bmgoto{background:var(--sur2);border:1px solid var(--bd);border-radius:10px;padding:8px 18px;color:var(--mu);font-size:12px;font-weight:600;transition:all .15s}
+.bmgoto:hover{border-color:var(--g);color:var(--g)}
+.ymempty{text-align:center;color:var(--fa);padding:28px 0;font-size:13px}
+
+/* YEAR TABLE */
+.ytable{border-radius:12px;overflow:hidden;border:1px solid var(--bd)}
+.yth{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 70px;background:var(--sur2)}
+.yth>div{font-size:10px;color:var(--fa);text-transform:uppercase;letter-spacing:1.5px;padding:10px 14px;font-weight:700;border-bottom:1px solid var(--bd)}
+.ytb{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 70px}
+.ytd{padding:11px 14px;border-bottom:1px solid var(--bd);font-size:13px;background:var(--sur)}
+.ytd.fa{color:var(--fa)}
+.ytd.g{color:var(--g);font-weight:600}
+.ytd.r{color:var(--r);font-weight:600}
+.ytd.b{font-weight:700}
+.ytf-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 70px;border-top:2px solid var(--bd2);background:var(--sur2)}
+.ytf{padding:13px 14px;font-size:14px;font-weight:700}
+
+/* PICKER */
+#picker{position:fixed;inset:0;background:#0d0f14;display:flex;align-items:center;justify-content:center;z-index:999}
+.pbox{background:#161921;border:1px solid #1f2333;border-radius:24px;padding:40px 44px;width:400px;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.plogo{text-align:center;margin-bottom:28px}
+.pemj{font-size:36px;margin-bottom:10px}
+.ptit{font-size:20px;font-weight:800;color:#e8eaf0;letter-spacing:2px;text-transform:uppercase}
+.psub{font-size:12px;color:#4a5168;margin-top:6px}
+.psect{font-size:11px;color:#4a5168;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-weight:600}
+.pusers{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.puser{background:#1f2333;border:1px solid #2e3347;border-radius:12px;padding:12px 16px;color:#e8eaf0;font-size:14px;font-weight:600;text-align:left;display:flex;align-items:center;gap:10px;transition:all .15s;width:100%}
+.puser:hover{border-color:#4ade80;color:#4ade80}
+.psep{height:1px;background:#1f2333;margin-bottom:20px}
+.prow{display:flex;gap:8px}
+.pinp{flex:1;background:#1f2333;border:1px solid #2e3347;border-radius:10px;padding:10px 14px;color:#e8eaf0;font-size:13px;outline:none;font-family:'Plus Jakarta Sans',sans-serif}
+.pinp:focus{border-color:#4ade80}
+.penter{background:#4ade80;color:#0d0f14;border:none;border-radius:10px;padding:0 18px;font-weight:700;font-size:14px;white-space:nowrap;height:40px}
+
+@media(max-width:700px){
+  .sgrid,.ygrid{grid-template-columns:1fr}
+  .cgrid,.ycharts{grid-template-columns:1fr}
+  .ymsg{grid-template-columns:1fr}
+  .yth,.ytb,.ytf-row{grid-template-columns:1fr 1fr 1fr}
+  .yth>div:nth-child(4),.yth>div:nth-child(5),
+  .ytd:nth-child(5n-1),.ytd:nth-child(5n),.ytf:nth-child(4),.ytf:last-child{display:none}
+}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useRef, useEffect } = React;
-const { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, LineChart, Line,
-        XAxis, YAxis, CartesianGrid, BarChart, Bar, Legend } = Recharts;
 
-const CDK = ["#4ade80","#f87171","#60a5fa","#fbbf24","#a78bfa","#fb923c"];
-const CLT = ["#16a34a","#dc2626","#2563eb","#d97706","#7c3aed","#ea580c"];
-const fBRL = v => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v);
-const MN = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
-const MK = ["2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09","2026-10","2026-11","2026-12"];
-const EC = ["Moradia","Alimentação","Transporte","Saúde","Lazer","Contas","Investimentos","Outros"];
+<!-- PICKER -->
+<div id="picker">
+  <div class="pbox">
+    <div class="plogo">
+      <div class="pemj">💰</div>
+      <div class="ptit">FINANÇAS 2026</div>
+      <div class="psub">Quem está acessando?</div>
+    </div>
+    <div id="pu"></div>
+    <div class="psect" id="pnl">Criar perfil</div>
+    <div class="prow">
+      <input class="pinp" id="pinp" placeholder="Seu nome ou apelido" autocomplete="off"/>
+      <button class="penter" onclick="pickerGo()">Entrar</button>
+    </div>
+  </div>
+</div>
 
-const DK = {
-  bg:"#0d0f14",sur:"#161921",alt:"#1a1f2e",hov:"rgba(255,255,255,0.03)",
-  bd:"#1f2333",bd2:"#2e3347",tx:"#e8eaf0",mu:"#8892a4",fa:"#4a5168",
-  gr:"#4ade80",grb:"rgba(74,222,128,0.1)",grd:"rgba(74,222,128,0.3)",
-  re:"#f87171",reb:"rgba(248,113,113,0.1)",red:"rgba(248,113,113,0.3)",
-  ye:"#fbbf24",inp:"#1f2333",inb:"#2e3347",ton:"#4ade80",tof:"#0d0f14",
-  sh:"0 4px 24px rgba(0,0,0,0.35)",cg:"#1f2333",ct:"#4a5168",cb:"#161921"
-};
-const LT = {
-  bg:"#f0f4f8",sur:"#ffffff",alt:"#eef2f7",hov:"rgba(0,0,0,0.025)",
-  bd:"#dde3ec",bd2:"#c8d0dc",tx:"#1a2035",mu:"#4a5878",fa:"#8896aa",
-  gr:"#16a34a",grb:"rgba(22,163,74,0.08)",grd:"rgba(22,163,74,0.25)",
-  re:"#dc2626",reb:"rgba(220,38,38,0.07)",red:"rgba(220,38,38,0.25)",
-  ye:"#b45309",inp:"#f8fafc",inb:"#dde3ec",ton:"#1a2035",tof:"#ffffff",
-  sh:"0 4px 24px rgba(0,0,0,0.07)",cg:"#e8edf4",ct:"#8896aa",cb:"#ffffff"
-};
+<!-- NAV -->
+<div id="nav" style="display:none">
+  <div class="ni">
+    <div class="logo">
+      <div class="logo-ic">💰</div>
+      <div>
+        <div class="logo-t">FINANÇAS 2026</div>
+        <div class="logo-s" id="nu"></div>
+      </div>
+    </div>
+    <div class="nav-r">
+      <button class="btn-th" onclick="togTheme()">
+        <span id="tic">☀️</span><span id="tlbl">Tema Claro</span>
+      </button>
+      <button class="btn-sw" onclick="doSwitch()">Trocar perfil</button>
+    </div>
+  </div>
+</div>
 
+<!-- MAIN -->
+<div id="main" style="display:none">
+  <div class="mtabs-wrap"><div class="mtabs" id="mtabs"></div></div>
+  <div id="content"></div>
+</div>
+
+<script>
+// ── CONSTANTS ──
+const MO = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const MK = MO.map((_,i)=>`2026-${String(i+1).padStart(2,"0")}`);
+const CC_D = ["#4ade80","#f87171","#60a5fa","#fbbf24","#a78bfa","#fb923c"];
+const CC_L = ["#16a34a","#dc2626","#2563eb","#d97706","#7c3aed","#ea580c"];
 const SEED = [
-  {id:1,desc:"Salário",amount:5800,type:"entrada",category:"Salário",date:"2026-01-01"},
-  {id:2,desc:"Aluguel",amount:-1500,type:"saída",category:"Moradia",date:"2026-01-05"},
-  {id:3,desc:"Mercado",amount:-390,type:"saída",category:"Alimentação",date:"2026-01-10"},
-  {id:4,desc:"Conta de Luz",amount:-160,type:"saída",category:"Contas",date:"2026-01-15"},
-  {id:5,desc:"Salário",amount:5800,type:"entrada",category:"Salário",date:"2026-02-01"},
-  {id:6,desc:"Aluguel",amount:-1500,type:"saída",category:"Moradia",date:"2026-02-05"},
-  {id:7,desc:"Mercado",amount:-450,type:"saída",category:"Alimentação",date:"2026-02-12"},
-  {id:8,desc:"Netflix",amount:-45,type:"saída",category:"Lazer",date:"2026-02-18"},
-  {id:9,desc:"Salário",amount:5800,type:"entrada",category:"Salário",date:"2026-03-01"},
-  {id:10,desc:"Aluguel",amount:-1500,type:"saída",category:"Moradia",date:"2026-03-02"},
-  {id:11,desc:"Mercado",amount:-430,type:"saída",category:"Alimentação",date:"2026-03-04"},
-  {id:12,desc:"Freelance",amount:1200,type:"entrada",category:"Freelance",date:"2026-03-06"},
-  {id:13,desc:"Conta de Luz",amount:-180,type:"saída",category:"Contas",date:"2026-03-07"},
-  {id:14,desc:"Netflix",amount:-45,type:"saída",category:"Lazer",date:"2026-03-08"},
-  {id:15,desc:"Restaurante",amount:-95,type:"saída",category:"Alimentação",date:"2026-03-10"},
-  {id:16,desc:"Dividendos",amount:320,type:"entrada",category:"Dividendos",date:"2026-03-12"},
+  {id:1,desc:"Salário",amt:5800,t:"in",cat:"Salário",dt:"2026-01-01"},
+  {id:2,desc:"Aluguel",amt:1500,t:"out",cat:"Moradia",dt:"2026-01-05"},
+  {id:3,desc:"Mercado",amt:390,t:"out",cat:"Alimentação",dt:"2026-01-10"},
+  {id:4,desc:"Conta de Luz",amt:160,t:"out",cat:"Contas",dt:"2026-01-15"},
+  {id:5,desc:"Salário",amt:5800,t:"in",cat:"Salário",dt:"2026-02-01"},
+  {id:6,desc:"Aluguel",amt:1500,t:"out",cat:"Moradia",dt:"2026-02-05"},
+  {id:7,desc:"Mercado",amt:450,t:"out",cat:"Alimentação",dt:"2026-02-12"},
+  {id:8,desc:"Netflix",amt:45,t:"out",cat:"Lazer",dt:"2026-02-18"},
+  {id:9,desc:"Salário",amt:5800,t:"in",cat:"Salário",dt:"2026-03-01"},
+  {id:10,desc:"Aluguel",amt:1500,t:"out",cat:"Moradia",dt:"2026-03-02"},
+  {id:11,desc:"Mercado",amt:430,t:"out",cat:"Alimentação",dt:"2026-03-04"},
+  {id:12,desc:"Freelance",amt:1200,t:"in",cat:"Freelance",dt:"2026-03-06"},
+  {id:13,desc:"Conta de Luz",amt:180,t:"out",cat:"Contas",dt:"2026-03-07"},
+  {id:14,desc:"Netflix",amt:45,t:"out",cat:"Lazer",dt:"2026-03-08"},
+  {id:15,desc:"Restaurante",amt:95,t:"out",cat:"Alimentação",dt:"2026-03-10"},
+  {id:16,desc:"Dividendos",amt:320,t:"in",cat:"Dividendos",dt:"2026-03-12"},
 ];
 
-const cst = txs => {
-  const e=txs.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
-  const s=txs.filter(t=>t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
-  return {entradas:e,saidas:s,saldo:e-s};
+// ── STATE ──
+let user=null,dark=true,txs=[],inCats=[],outCats=[];
+let curTab="2026-03",curFilt="all",ymTab=null;
+// per-panel state
+const PS = {
+  in:  {tab:"",mng:false,adding:false},
+  out: {tab:"",mng:false,adding:false},
+};
+let charts={};
+
+// ── STORAGE ──
+const S={
+  k:(u,k)=>`f26_${u}_${k}`,
+  sv(u,k,v){try{localStorage.setItem(S.k(u,k),JSON.stringify(v))}catch(e){}},
+  ld(u,k,d){try{const v=localStorage.getItem(S.k(u,k));return v!=null?JSON.parse(v):d}catch(e){return d}},
+  users(){try{return JSON.parse(localStorage.getItem("f26_users")||"[]")}catch(e){return[]}},
+  addU(u){try{const a=S.users();if(!a.includes(u))localStorage.setItem("f26_users",JSON.stringify([...a,u]))}catch(e){}},
 };
 
-const stor = {
-  sv(u,k,v){try{localStorage.setItem("f26_"+u+"_"+k,JSON.stringify(v));}catch(e){}},
-  ld(u,k,d){try{const v=localStorage.getItem("f26_"+u+"_"+k);return v!=null?JSON.parse(v):d;}catch(e){return d;}},
-  users(){try{return JSON.parse(localStorage.getItem("f26_users")||"[]");}catch(e){return [];}},
-  addU(u){try{const a=this.users();if(!a.includes(u))localStorage.setItem("f26_users",JSON.stringify([...a,u]));}catch(e){}}
+// ── UTILS ──
+const R=v=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v);
+const FD=d=>new Date(d+"T12:00").toLocaleDateString("pt-BR");
+const uid=()=>Date.now()+Math.floor(Math.random()*999);
+const cs=list=>{
+  const e=list.filter(t=>t.t==="in").reduce((s,t)=>s+t.amt,0);
+  const o=list.filter(t=>t.t==="out").reduce((s,t)=>s+t.amt,0);
+  return{e,o,s:e-o};
 };
+const esc=s=>String(s).replace(/'/g,"\\'");
 
-function EDesc({value,onSave,c}){
-  const [ed,setEd]=useState(false);
-  const [v,setV]=useState(value);
-  const r=useRef();
-  const ok=()=>{if(v.trim())onSave(v.trim());setEd(false);};
-  if(ed) return <input ref={r} value={v} autoFocus onChange={e=>setV(e.target.value)} onBlur={ok}
-    onKeyDown={e=>{if(e.key==="Enter")ok();if(e.key==="Escape")setEd(false);}}
-    style={{background:"transparent",border:"none",borderBottom:"2px solid "+c.gr,outline:"none",
-      color:c.tx,fontFamily:"'Plus Jakarta Sans',sans-serif",fontSize:12,fontWeight:600,width:"100%",padding:"1px 0"}}/>;
-  return <span onClick={()=>{setV(value);setEd(true);setTimeout(()=>r.current?.select(),10);}}
-    style={{fontSize:12,fontWeight:600,color:c.tx,cursor:"text",borderBottom:"1px dashed transparent",transition:"border-color 0.15s"}}
-    onMouseEnter={e=>e.currentTarget.style.borderBottomColor=c.gr}
-    onMouseLeave={e=>e.currentTarget.style.borderBottomColor="transparent"}>
-    {value} <span style={{fontSize:9,color:c.fa}}>✎</span>
-  </span>;
+function saveAll(){
+  if(!user)return;
+  S.sv(user,"txs",txs);S.sv(user,"ic",inCats);S.sv(user,"oc",outCats);S.sv(user,"dk",dark);
 }
 
-function ENum({value,onSave,color,large}){
-  const [ed,setEd]=useState(false);
-  const [v,setV]=useState("");
-  const r=useRef();
-  const start=()=>{setV(String(Math.abs(value)));setEd(true);setTimeout(()=>r.current?.select(),10);};
-  const ok=()=>{const n=parseFloat(v.replace(",","."));if(!isNaN(n)&&n>0)onSave(n);setEd(false);};
-  if(ed) return <input ref={r} value={v} autoFocus type="number" onChange={e=>setV(e.target.value)} onBlur={ok}
-    onKeyDown={e=>{if(e.key==="Enter")ok();if(e.key==="Escape")setEd(false);}}
-    style={{background:"transparent",border:"none",borderBottom:"2px solid "+color,outline:"none",
-      color,fontSize:large?"30px":"14px",fontWeight:700,width:large?"160px":"80px",padding:"2px 0"}}/>;
-  return <span onClick={start}
-    style={{cursor:"text",color,fontSize:large?"30px":"14px",fontWeight:700,
-      borderBottom:"1px dashed transparent",transition:"border-color 0.2s",whiteSpace:"nowrap"}}
-    onMouseEnter={e=>e.currentTarget.style.borderBottomColor=color}
-    onMouseLeave={e=>e.currentTarget.style.borderBottomColor="transparent"}>
-    {value>0?"+":""}{fBRL(value)}
-  </span>;
+// ── PICKER ──
+function renderPicker(){
+  const us=S.users();
+  const el=document.getElementById("pu");
+  const lbl=document.getElementById("pnl");
+  if(us.length){
+    lbl.textContent="Novo perfil";
+    el.innerHTML=`<div class="psect">Perfis existentes</div>
+      <div class="pusers">${us.map(u=>`<button class="puser" onclick="login('${esc(u)}')"><span style="font-size:18px">👤</span>${u}</button>`).join("")}</div>
+      <div class="psep"></div>`;
+  } else {
+    el.innerHTML="";lbl.textContent="Criar perfil";
+  }
+}
+document.getElementById("pinp").addEventListener("keydown",e=>{if(e.key==="Enter")pickerGo();});
+function pickerGo(){const v=document.getElementById("pinp").value.trim();if(v)login(v);}
+function login(u){
+  S.addU(u);user=u;
+  txs=S.ld(u,"txs",null)??JSON.parse(JSON.stringify(SEED));
+  inCats=S.ld(u,"ic",["Salário","Freelance","Dividendos"]);
+  outCats=S.ld(u,"oc",["Moradia","Alimentação","Lazer","Contas"]);
+  dark=S.ld(u,"dk",true);
+  PS.in.tab=inCats[0]||"";PS.out.tab=outCats[0]||"";
+  applyTheme();
+  document.getElementById("picker").style.display="none";
+  document.getElementById("nav").style.display="";
+  document.getElementById("main").style.display="";
+  document.getElementById("nu").textContent="👤 "+u;
+  renderMTabs();renderContent();
+}
+function doSwitch(){saveAll();user=null;document.getElementById("picker").style.display="flex";document.getElementById("nav").style.display="none";document.getElementById("main").style.display="none";document.getElementById("pinp").value="";renderPicker();}
+
+// ── THEME ──
+function applyTheme(){
+  document.body.classList.toggle("lt",!dark);
+  document.getElementById("tic").textContent=dark?"☀️":"🌙";
+  document.getElementById("tlbl").textContent=dark?"Tema Claro":"Tema Escuro";
+}
+function togTheme(){dark=!dark;applyTheme();S.sv(user,"dk",dark);renderContent();}
+
+// ── MONTH TABS ──
+function renderMTabs(){
+  document.getElementById("mtabs").innerHTML=
+    MK.map((k,i)=>{const h=txs.some(t=>t.dt.startsWith(k)),on=curTab===k;
+      return`<button class="mtab${h?" has":""}${on?" on":""}" onclick="swTab('${k}')">${MO[i]}${h&&!on?'<span class="dot"></span>':""}</button>`;
+    }).join("")+
+    `<div class="tsep"></div><button class="ytab${curTab==="year"?" on":""}" onclick="swTab('year')">Ano Total ★</button>`;
+}
+function swTab(k){saveAll();curTab=k;curFilt="all";ymTab=null;PS.in.mng=false;PS.out.mng=false;PS.in.adding=false;PS.out.adding=false;renderMTabs();renderContent();}
+
+// ── MAIN RENDER ──
+function renderContent(){
+  Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}});charts={};
+  curTab==="year"?renderYear():renderMonth();
 }
 
-function DelBtn({onClick,c}){
-  return <button onClick={onClick}
-    style={{background:c.reb,border:"1px solid "+c.red,color:c.re,cursor:"pointer",borderRadius:6,
-      width:26,height:26,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",
-      transition:"all 0.15s",flexShrink:0}}
-    onMouseEnter={e=>{e.currentTarget.style.background=c.red;}}
-    onMouseLeave={e=>{e.currentTarget.style.background=c.reb;}}>✕</button>;
+// ── MONTH RENDER ──
+function renderMonth(){
+  const mt=txs.filter(t=>t.dt.startsWith(curTab));
+  const {e,o,s}=cs(mt);
+  const pct=e>0?Math.min(100,Math.round((o/e)*100)):0;
+  const sc=s>=0?"var(--g)":"var(--r)";
+  const pc=pct>80?"linear-gradient(90deg,var(--y),var(--r))":pct>60?"var(--y)":"var(--g)";
+  const mi=MK.indexOf(curTab);
+  const pie=Object.entries(mt.filter(t=>t.t==="out").reduce((a,t)=>{a[t.cat]=(a[t.cat]||0)+t.amt;return a},{})).map(([n,v])=>({n,v}));
+  let fl=mt;
+  if(curFilt==="in")fl=mt.filter(t=>t.t==="in");
+  if(curFilt==="out")fl=mt.filter(t=>t.t==="out");
+
+  const el=document.getElementById("content");
+  el.className="fade";
+  el.innerHTML=`
+  <div class="sgrid">
+    <div class="card scard">
+      <div class="sglow" id="sg" style="background:${sc}"></div>
+      <div class="slbl">Saldo do Mês</div>
+      <div class="sval" id="sv" style="color:${sc}">${R(s)}</div>
+      <div class="smg">
+        <div class="smb g"><div class="sml">↑ Entradas</div><div class="smv g" id="sme">${R(e)}</div></div>
+        <div class="smb r"><div class="sml">↓ Saídas</div><div class="smv r" id="smo">${R(o)}</div></div>
+      </div>
+      ${e>0?`<div class="prow"><span class="plbl">Comprometido</span><span class="ppct" id="spct" style="color:${pct>80?"var(--r)":pct>60?"var(--y)":"var(--g)"}">${pct}%</span></div>
+      <div class="pbar"><div class="pfill" id="spf" style="width:${pct}%;background:${pc}"></div></div>`:""}
+    </div>
+    <div class="card" id="p-in">${buildPanel("in",mt)}</div>
+    <div class="card" id="p-out">${buildPanel("out",mt)}</div>
+  </div>
+  ${mt.length?`
+  <div class="cgrid">
+    <div class="card">
+      <div class="ctit">Gastos por Categoria</div>
+      <div class="csub">Distribuição das saídas</div>
+      ${pie.length?`<canvas id="pc" height="160"></canvas><div class="pleg" id="pl"></div>`
+        :`<div style="text-align:center;color:var(--fa);padding:40px 0;font-size:13px">Sem saídas este mês</div>`}
+    </div>
+    <div class="card">
+      <div class="ctit">Resumo do Mês</div>
+      <div class="csub">Entradas vs Saídas — ${MO[mi]}</div>
+      <canvas id="bc" height="220"></canvas>
+    </div>
+  </div>`:""}
+  <div class="card">
+    <div class="lh">
+      <div>
+        <div class="lt2">Transações <span class="lc">${mt.length}</span></div>
+        <div class="ls">${MO[mi]} 2026</div>
+      </div>
+      <div class="ftabs">
+        <button class="ftab${curFilt==="all"?" on":""}" onclick="setFilt('all')">Todos</button>
+        <button class="ftab${curFilt==="in"?" on":""}" onclick="setFilt('in')">Entrada</button>
+        <button class="ftab${curFilt==="out"?" on":""}" onclick="setFilt('out')">Saída</button>
+      </div>
+    </div>
+    <div class="llist">
+      ${fl.length?fl.map(tx=>`
+        <div class="li">
+          <div class="ll">
+            <div class="lic ${tx.t==="in"?"g":"r"}">${tx.t==="in"?"↑":"↓"}</div>
+            <div><div class="ldesc">${tx.desc}</div><div class="lmeta">${tx.cat} · ${FD(tx.dt)}</div></div>
+          </div>
+          <div class="lright">
+            <span class="lamt ${tx.t==="in"?"g":"r"}">${tx.t==="in"?"+":"−"}${R(tx.amt)}</span>
+            <button class="bld" onclick="delTx(${tx.id})">✕</button>
+          </div>
+        </div>`).join("")
+      :`<div class="lempty">Nenhuma transação em ${MO[mi]}</div>`}
+    </div>
+  </div>`;
+
+  // charts
+  if(pie.length){
+    const cc=dark?CC_D:CC_L;
+    charts.pie=new Chart(document.getElementById("pc").getContext("2d"),{
+      type:"doughnut",
+      data:{labels:pie.map(d=>d.n),datasets:[{data:pie.map(d=>d.v),backgroundColor:cc,borderWidth:0,hoverOffset:4}]},
+      options:{cutout:"62%",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>" "+R(c.raw)}}},animation:{duration:400}}
+    });
+    document.getElementById("pl").innerHTML=pie.map((d,i)=>`
+      <div class="plr"><div class="pll"><div class="pdot" style="background:${cc[i%cc.length]}"></div><span class="pnm">${d.n}</span></div>
+      <span class="pvl">${R(d.v)}</span></div>`).join("");
+  }
+  if(mt.length){
+    const bc=document.getElementById("bc");
+    if(bc) charts.bar=new Chart(bc.getContext("2d"),{
+      type:"bar",
+      data:{labels:[MO[mi]],datasets:[
+        {label:"Entradas",data:[e],backgroundColor:dark?"#4ade80":"#16a34a",borderRadius:8},
+        {label:"Saídas",data:[o],backgroundColor:dark?"#f87171":"#dc2626",borderRadius:8}
+      ]},
+      options:{plugins:{legend:{labels:{color:"var(--mu)",font:{family:"'Plus Jakarta Sans'",size:11}}}},
+        scales:{x:{grid:{display:false},ticks:{color:"var(--fa)"}},y:{grid:{color:dark?"#1f2333":"#e8edf4"},ticks:{color:"var(--fa)",callback:v=>"R$"+v/1000+"k"}}},animation:{duration:400}}
+    });
+  }
 }
 
-// Reusable tab panel used for both Entradas and Saidas
-function TabPanel({title, color, colorBg, colorBd, txs, mKey, onUpdate, onRemove, onAdd, c, dark, cats, setCats, defaultCat}){
-  const isIn = color===c.gr;
-  const [curTab,setCurTab]=useState(cats[0]||"");
-  const [mng,setMng]=useState(false);
-  const [newTab,setNewTab]=useState("");
-  const [adding,setAdding]=useState(false);
-  const [form,setForm]=useState({desc:"",amount:"",cat:defaultCat||EC[0]});
+// ── PANEL BUILDER — identical for in & out ──
+function buildPanel(type,mTxs){
+  const ps=PS[type];
+  const cats=type==="in"?inCats:outCats;
+  const col=type==="in"?"g":"r";
+  const title=type==="in"?"↑ Entradas":"↓ Saídas";
+  const mgCls=ps.mng?(type==="in"?"og":"or"):"";
 
-  useEffect(()=>{if(!cats.includes(curTab))setCurTab(cats[0]||"");},[cats]);
+  // group
+  const grp={};
+  mTxs.filter(t=>t.t===type).forEach(t=>{if(!grp[t.cat])grp[t.cat]=[];grp[t.cat].push(t);});
+  const cur=grp[ps.tab]||[];
 
-  const groups={};
-  txs.forEach(t=>{if(!groups[t.category])groups[t.category]=[];groups[t.category].push(t);});
-
-  const delTab=cat=>{
-    (groups[cat]||[]).forEach(t=>onRemove(t.id));
-    setCats(cats.filter(x=>x!==cat));
-  };
-  const addTab=()=>{
-    const n=newTab.trim();
-    if(!n||cats.includes(n))return;
-    setCats([...cats,n]);setCurTab(n);setNewTab("");
-  };
-  const doAdd=()=>{
-    const n=parseFloat(form.amount.replace(",","."));
-    if(!isNaN(n)&&n>0){
-      const desc=form.desc.trim()||curTab;
-      const amount=isIn?n:-n;
-      const type=isIn?"entrada":"saída";
-      const category=isIn?curTab:form.cat;
-      onAdd({desc,amount,type,category,date:mKey+"-01"});
-      setForm({desc:"",amount:"",cat:defaultCat||EC[0]});
-      setAdding(false);
+  // cat tabs or manage
+  let catHtml="";
+  if(ps.mng){
+    catHtml=`<div class="mbox">
+      <div class="mhint">Clique ✕ para excluir aba e seus lançamentos</div>
+      <div class="chips">${cats.map(c=>{
+        const h=(grp[c]||[]).length>0;
+        return`<div class="chip ${h?"c"+col:"cn"}">
+          <span class="chlbl">${c}${h?'<span class="chdot">●</span>':""}</span>
+          <button class="chdel" onclick="delCat('${type}','${esc(c)}')">✕</button>
+        </div>`;
+      }).join("")}</div>
+      <div class="atr">
+        <input id="nt-${type}" placeholder="Nome da nova aba..." style="font-size:12px" onkeydown="if(event.key==='Enter')addCat('${type}')"/>
+        <button class="bp${col}" onclick="addCat('${type}')">+</button>
+      </div>
+    </div>`;
+  } else {
+    if(cats.length===0){
+      catHtml=`<div class="notabs">Crie abas clicando em ⚙</div>`;
+    } else {
+      catHtml=`<div class="ctabs">${cats.map(c=>{
+        const h=(grp[c]||[]).length>0,on=ps.tab===c;
+        return`<button class="ctab${h?" has":""}${on?" on"+col:""}" onclick="swCat('${type}','${esc(c)}')">${c}${h&&!on?`<span class="cdot" style="background:var(--${col})"></span>`:""}</button>`;
+      }).join("")}</div>`;
     }
-  };
+  }
 
-  const card={background:c.sur,border:"1px solid "+c.bd,borderRadius:20,padding:"24px",boxShadow:c.sh};
-  const inp={background:c.inp,border:"1px solid "+c.inb,borderRadius:8,padding:"7px 10px",
-    color:c.tx,fontFamily:"'Plus Jakarta Sans',sans-serif",fontSize:13,outline:"none",width:"100%"};
-  const btnC={background:color,color:dark?(isIn?"#0d0f14":"#fff"):"#fff",border:"none",borderRadius:8,
-    padding:"0 14px",height:36,fontWeight:700,cursor:"pointer",fontSize:13,fontFamily:"'Plus Jakarta Sans',sans-serif"};
+  // items
+  let items="";
+  if(!ps.mng){
+    if(cats.length>0&&cur.length===0&&!ps.adding) items=`<div class="tempty">Sem lançamentos de ${ps.tab||"..."}</div>`;
+    cur.forEach(tx=>{
+      items+=`<div class="titem i${col}" id="ti-${tx.id}">
+        <div class="tinfo">
+          <span class="tdesc" id="d-${tx.id}" onclick="edDesc(${tx.id})">${tx.desc} <span style="font-size:9px;color:var(--fa)">✎</span></span>
+          <div class="tdate">${FD(tx.dt)}</div>
+        </div>
+        <div class="tr">
+          <span class="tamt ${col}" id="a-${tx.id}" onclick="edAmt(${tx.id})">${R(tx.amt)}</span>
+          <button class="bdel" onclick="delTx(${tx.id})">✕</button>
+        </div>
+      </div>`;
+    });
+    if(ps.adding){
+      items+=`<div class="aform">
+        <div class="afrow">
+          <input id="ad-${type}" placeholder="Descrição (padrão: ${esc(ps.tab||type)})" style="flex:1"/>
+        </div>
+        <div class="afrow">
+          <input id="aa-${type}" type="number" placeholder="Valor (R$)" style="flex:1" onkeydown="if(event.key==='Enter')confAdd('${type}');if(event.key==='Escape')cancAdd('${type}')"/>
+          <button class="bc${col}" onclick="confAdd('${type}')">✓</button>
+          <button class="bcanc" onclick="cancAdd('${type}')">✕</button>
+        </div>
+      </div>`;
+    } else if(cats.length>0){
+      items+=`<button class="badg ${col==="g"?"gr":"rd"}" onclick="startAdd('${type}')">+ adicionar ${(ps.tab||type).toLowerCase()}</button>`;
+    }
+  }
 
-  return <div style={card}>
-    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-      <div style={{fontSize:10,letterSpacing:2.5,color:c.fa,textTransform:"uppercase",fontWeight:600}}>{title}</div>
-      <button onClick={()=>{setMng(v=>!v);setAdding(false);}}
-        style={{background:mng?colorBg:"transparent",border:"1px solid "+(mng?color:c.bd),
-          color:mng?color:c.fa,borderRadius:20,padding:"3px 10px",fontSize:10,cursor:"pointer",transition:"all 0.2s",fontWeight:600,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
-        {mng?"✓ fechar":"⚙ abas"}
-      </button>
-    </div>
-
-    {mng ? <div style={{background:dark?"#0d0f14":c.alt,borderRadius:12,padding:"12px"}}>
-      <div style={{fontSize:11,color:c.fa,marginBottom:10}}>Clique ✕ para excluir aba e seus lançamentos</div>
-      <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:12}}>
-        {cats.map(cat=>{
-          const has=groups[cat]?.length>0;
-          return <div key={cat} style={{display:"flex",alignItems:"center",background:c.sur,
-            border:"1px solid "+(has?color:c.bd),borderRadius:20,overflow:"hidden"}}>
-            <span style={{fontSize:11,fontWeight:600,color:has?color:c.fa,padding:"4px 10px"}}>
-              {cat}{has&&<span style={{fontSize:8,marginLeft:3}}>●</span>}
-            </span>
-            <button onClick={()=>delTab(cat)}
-              style={{background:"transparent",border:"none",borderLeft:"1px solid "+c.bd,
-                color:c.fa,cursor:"pointer",padding:"4px 8px",fontSize:12,transition:"all 0.15s"}}
-              onMouseEnter={e=>{e.currentTarget.style.background=c.reb;e.currentTarget.style.color=c.re;}}
-              onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color=c.fa;}}>✕</button>
-          </div>;
-        })}
-      </div>
-      <div style={{display:"flex",gap:6}}>
-        <input placeholder="Nome da nova aba..." value={newTab} onChange={e=>setNewTab(e.target.value)}
-          onKeyDown={e=>{if(e.key==="Enter")addTab();}} style={{...inp,flex:1,fontSize:12}}/>
-        <button onClick={addTab} style={btnC}>+</button>
-      </div>
-    </div> : <>
-      <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
-        {cats.length===0 ? <span style={{fontSize:12,color:c.fa}}>Crie abas clicando em ⚙</span> :
-          cats.map(cat=>{
-            const has=groups[cat]?.length>0;
-            const on=curTab===cat;
-            return <button key={cat} onClick={()=>{setCurTab(cat);setAdding(false);}}
-              style={{padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",border:"1px solid",
-                transition:"all 0.15s",fontFamily:"'Plus Jakarta Sans',sans-serif",
-                background:on?color:"transparent",color:on?(dark&&isIn?"#0d0f14":on?"#fff":c.tx):has?c.tx:c.fa,
-                borderColor:on?color:has?c.bd2:c.bd}}>
-              {cat}{has&&!on&&<span style={{display:"inline-block",width:4,height:4,borderRadius:"50%",
-                background:color,marginLeft:5,verticalAlign:"middle"}}/>}
-            </button>;
-          })
-        }
-      </div>
-
-      <div style={{display:"flex",flexDirection:"column",gap:6,minHeight:52}}>
-        {cats.length>0&&(groups[curTab]||[]).length===0&&!adding&&
-          <div style={{fontSize:12,color:c.fa}}>Sem lançamentos de {curTab}</div>}
-        {(groups[curTab]||[]).map(tx=>(
-          <div key={tx.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",
-            background:colorBg,border:"1px solid "+colorBd,borderRadius:10,padding:"8px 12px",gap:8}}>
-            <div style={{flex:1,minWidth:0}}>
-              <EDesc value={tx.desc} onSave={v=>onUpdate(tx.id,{desc:v})} c={c}/>
-              <div style={{fontSize:10,color:c.fa,marginTop:1}}>{new Date(tx.date+"T12:00").toLocaleDateString("pt-BR")}</div>
-            </div>
-            <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-              <ENum value={tx.amount} color={color} onSave={v=>onUpdate(tx.id,{amount:isIn?v:-v})}/>
-              <DelBtn onClick={()=>onRemove(tx.id)} c={c}/>
-            </div>
-          </div>
-        ))}
-
-        {adding ? <div style={{display:"flex",flexDirection:"column",gap:6}}>
-          <input placeholder={isIn?"Descrição (padrão: "+curTab+")":"Descrição"} value={form.desc}
-            onChange={e=>setForm(f=>({...f,desc:e.target.value}))} style={inp}/>
-          <div style={{display:"flex",gap:6}}>
-            {!isIn && <select value={form.cat} onChange={e=>setForm(f=>({...f,cat:e.target.value}))} style={{...inp,flex:1}}>
-              {EC.map(x=><option key={x}>{x}</option>)}
-            </select>}
-            <input placeholder="Valor (R$)" type="number" value={form.amount}
-              onChange={e=>setForm(f=>({...f,amount:e.target.value}))}
-              onKeyDown={e=>{if(e.key==="Enter")doAdd();if(e.key==="Escape")setAdding(false);}}
-              style={{...inp,flex:1}}/>
-            <button onClick={doAdd} style={btnC}>✓</button>
-            <button onClick={()=>setAdding(false)} style={{background:"none",border:"none",color:c.fa,cursor:"pointer",fontSize:16}}>✕</button>
-          </div>
-        </div> : cats.length>0&&<button onClick={()=>setAdding(true)}
-          style={{background:"none",border:"1px dashed "+c.bd,borderRadius:8,padding:"7px 10px",
-            color:c.fa,fontSize:11,cursor:"pointer",fontFamily:"'Plus Jakarta Sans',sans-serif",
-            textAlign:"left",transition:"all 0.15s",marginTop:2}}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor=color;e.currentTarget.style.color=color;}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=c.bd;e.currentTarget.style.color=c.fa;}}>
-          + adicionar {curTab.toLowerCase()}
-        </button>}
-      </div>
-    </>}
-  </div>;
+  return`<div class="ph">
+    <div class="ptitle">${title}</div>
+    <button class="btn-mg ${mgCls}" onclick="togMng('${type}')">${ps.mng?"✓ fechar":"⚙ abas"}</button>
+  </div>
+  ${catHtml}
+  <div class="tlist">${items}</div>`;
 }
 
-function SaldoCard({mTxs,c,dark}){
-  const {entradas,saidas,saldo}=cst(mTxs);
-  const sc=saldo>=0?c.gr:c.re;
-  const pct=entradas>0?Math.min(100,Math.round((saidas/entradas)*100)):0;
-  return <div style={{background:dark?"linear-gradient(145deg,#161921,#1a2440)":c.sur,
-    border:"1px solid "+(dark?"#2a3a60":c.bd),borderRadius:20,padding:"24px",boxShadow:c.sh,position:"relative",overflow:"hidden"}}>
-    <div style={{position:"absolute",top:-24,right:-24,width:110,height:110,borderRadius:"50%",background:sc,opacity:0.07,pointerEvents:"none"}}/>
-    <div style={{fontSize:10,letterSpacing:2.5,color:c.fa,textTransform:"uppercase",marginBottom:10,fontWeight:600}}>Saldo do Mês</div>
-    <ENum value={saldo} onSave={()=>{}} color={sc} large/>
-    <div style={{marginTop:16,display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-      <div style={{background:c.grb,border:"1px solid "+c.grd,borderRadius:12,padding:"10px 12px"}}>
-        <div style={{fontSize:9,color:c.fa,textTransform:"uppercase",letterSpacing:1,marginBottom:3}}>↑ Entradas</div>
-        <div style={{fontSize:13,fontWeight:700,color:c.gr}}>{fBRL(entradas)}</div>
-      </div>
-      <div style={{background:c.reb,border:"1px solid "+c.red,borderRadius:12,padding:"10px 12px"}}>
-        <div style={{fontSize:9,color:c.fa,textTransform:"uppercase",letterSpacing:1,marginBottom:3}}>↓ Saídas</div>
-        <div style={{fontSize:13,fontWeight:700,color:c.re}}>{fBRL(saidas)}</div>
-      </div>
-    </div>
-    {entradas>0&&<div style={{marginTop:16}}>
-      <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
-        <span style={{fontSize:10,color:c.fa}}>Comprometido</span>
-        <span style={{fontSize:10,fontWeight:700,color:pct>80?c.re:pct>60?c.ye:c.gr}}>{pct}%</span>
-      </div>
-      <div style={{height:6,background:c.bd,borderRadius:3,overflow:"hidden"}}>
-        <div style={{height:"100%",width:pct+"%",borderRadius:3,transition:"width 0.6s",
-          background:pct>80?"linear-gradient(90deg,"+c.ye+","+c.re+")":pct>60?c.ye:c.gr}}/>
-      </div>
-    </div>}
-  </div>;
+// ── PANEL ACTIONS ──
+function togMng(t){PS[t].mng=!PS[t].mng;PS[t].adding=false;rePanel(t);}
+function swCat(t,c){PS[t].tab=c;PS[t].adding=false;rePanel(t);}
+function addCat(t){
+  const v=document.getElementById("nt-"+t)?.value.trim();if(!v)return;
+  const arr=t==="in"?inCats:outCats;
+  if(!arr.includes(v)){arr.push(v);PS[t].tab=v;}
+  saveAll();rePanel(t);
+}
+function delCat(t,c){
+  txs=txs.filter(tx=>!(tx.t===t&&tx.cat===c));
+  if(t==="in"){inCats=inCats.filter(x=>x!==c);if(PS.in.tab===c)PS.in.tab=inCats[0]||"";}
+  else{outCats=outCats.filter(x=>x!==c);if(PS.out.tab===c)PS.out.tab=outCats[0]||"";}
+  saveAll();rePanel(t);reSaldo();
+}
+function startAdd(t){PS[t].adding=true;rePanel(t);setTimeout(()=>document.getElementById("ad-"+t)?.focus(),50);}
+function cancAdd(t){PS[t].adding=false;rePanel(t);}
+function confAdd(t){
+  const n=parseFloat((document.getElementById("aa-"+t)?.value||"").replace(",","."));
+  if(isNaN(n)||n<=0)return;
+  const desc=document.getElementById("ad-"+t)?.value.trim()||PS[t].tab;
+  txs.unshift({id:uid(),desc,amt:n,t,cat:PS[t].tab,dt:curTab+"-01"});
+  saveAll();PS[t].adding=false;
+  rePanel(t);reSaldo();renderMTabs();
+  // refresh log
+  const mt=txs.filter(x=>x.dt.startsWith(curTab));
+  const fl=curFilt==="all"?mt:mt.filter(x=>x.t===curFilt);
+  const mi=MK.indexOf(curTab);
+  const llist=document.querySelector(".llist");
+  const lc=document.querySelector(".lc");
+  if(lc)lc.textContent=mt.length;
+  if(llist) llist.innerHTML=fl.length?fl.map(tx=>`
+    <div class="li">
+      <div class="ll"><div class="lic ${tx.t==="in"?"g":"r"}">${tx.t==="in"?"↑":"↓"}</div>
+      <div><div class="ldesc">${tx.desc}</div><div class="lmeta">${tx.cat} · ${FD(tx.dt)}</div></div></div>
+      <div class="lright"><span class="lamt ${tx.t==="in"?"g":"r"}">${tx.t==="in"?"+":"−"}${R(tx.amt)}</span>
+      <button class="bld" onclick="delTx(${tx.id})">✕</button></div>
+    </div>`).join(""):`<div class="lempty">Nenhuma transação em ${MO[mi]}</div>`;
 }
 
-function UserPicker({onPick}){
-  const [name,setName]=useState("");
-  const [users]=useState(()=>stor.users());
-  const pick=u=>{stor.addU(u);onPick(u);};
-  return <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#0d0f14",fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
-    <div style={{background:"#161921",border:"1px solid #1f2333",borderRadius:24,padding:"40px 44px",width:400,boxShadow:"0 8px 40px rgba(0,0,0,0.4)"}}>
-      <div style={{textAlign:"center",marginBottom:28}}>
-        <div style={{fontSize:36,marginBottom:10}}>💰</div>
-        <div style={{fontSize:20,fontWeight:800,color:"#e8eaf0",letterSpacing:2}}>FINANÇAS 2026</div>
-        <div style={{fontSize:12,color:"#4a5168",marginTop:6}}>Quem está acessando?</div>
-      </div>
-      {users.length>0&&<>
-        <div style={{fontSize:11,color:"#4a5168",textTransform:"uppercase",letterSpacing:1.5,marginBottom:10,fontWeight:600}}>Perfis existentes</div>
-        <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:20}}>
-          {users.map(u=><button key={u} onClick={()=>pick(u)}
-            style={{background:"#1f2333",border:"1px solid #2e3347",borderRadius:12,padding:"12px 16px",
-              color:"#e8eaf0",fontSize:14,fontWeight:600,cursor:"pointer",textAlign:"left",
-              transition:"all 0.15s",display:"flex",alignItems:"center",gap:10,fontFamily:"'Plus Jakarta Sans',sans-serif"}}
-            onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor="#2e3347";e.currentTarget.style.color="#e8eaf0";}}>
-            <span style={{fontSize:18}}>👤</span> {u}
-          </button>)}
-        </div>
-        <div style={{height:1,background:"#1f2333",marginBottom:20}}/>
-      </>}
-      <div style={{fontSize:11,color:"#4a5168",textTransform:"uppercase",letterSpacing:1.5,marginBottom:10,fontWeight:600}}>
-        {users.length>0?"Novo perfil":"Criar perfil"}
-      </div>
-      <div style={{display:"flex",gap:8}}>
-        <input value={name} onChange={e=>setName(e.target.value)}
-          onKeyDown={e=>{if(e.key==="Enter"&&name.trim())pick(name.trim());}}
-          placeholder="Seu nome ou apelido"
-          style={{flex:1,background:"#1f2333",border:"1px solid #2e3347",borderRadius:10,
-            padding:"10px 14px",color:"#e8eaf0",fontFamily:"'Plus Jakarta Sans',sans-serif",fontSize:13,outline:"none"}}/>
-        <button onClick={()=>name.trim()&&pick(name.trim())}
-          style={{background:"#4ade80",color:"#0d0f14",border:"none",borderRadius:10,padding:"0 18px",
-            fontWeight:700,cursor:"pointer",fontSize:14,fontFamily:"'Plus Jakarta Sans',sans-serif",whiteSpace:"nowrap"}}>Entrar</button>
-      </div>
-    </div>
-  </div>;
+function rePanel(t){
+  const mt=txs.filter(x=>x.dt.startsWith(curTab));
+  document.getElementById("p-"+t).innerHTML=buildPanel(t,mt);
+}
+function reSaldo(){
+  const mt=txs.filter(x=>x.dt.startsWith(curTab));
+  const {e,o,s}=cs(mt);
+  const sc=s>=0?"var(--g)":"var(--r)";
+  const pct=e>0?Math.min(100,Math.round((o/e)*100)):0;
+  const sv=document.getElementById("sv"),sg=document.getElementById("sg");
+  const sme=document.getElementById("sme"),smo=document.getElementById("smo");
+  if(sv){sv.textContent=R(s);sv.style.color=sc;}
+  if(sg)sg.style.background=sc;
+  if(sme)sme.textContent=R(e);
+  if(smo)smo.textContent=R(o);
+  const pf=document.getElementById("spf"),pp=document.getElementById("spct");
+  if(pf){pf.style.width=pct+"%";pf.style.background=pct>80?"linear-gradient(90deg,var(--y),var(--r))":pct>60?"var(--y)":"var(--g)";}
+  if(pp){pp.textContent=pct+"%";pp.style.color=pct>80?"var(--r)":pct>60?"var(--y)":"var(--g)";}
+  renderMTabs();
 }
 
-function App(){
-  const [user,setUser]=useState(null);
-  const [dark,setDark]=useState(true);
-  const [txs,setTxs]=useState([]);
-  const [iCats,setICats]=useState(["Salário","Freelance","Dividendos"]);
-  const [oCats,setOCats]=useState(["Moradia","Alimentação","Lazer"]);
-  const [tab,setTab]=useState("2026-03");
-  const [filt,setFilt]=useState("todos");
-  const [yM,setYM]=useState(null);
+// inline edit desc
+function edDesc(id){
+  const el=document.getElementById("d-"+id);if(!el)return;
+  const tx=txs.find(t=>t.id===id);if(!tx)return;
+  el.outerHTML=`<input id="de-${id}" value="${esc(tx.desc)}" style="background:transparent;border:none;border-bottom:2px solid var(--${tx.t==="in"?"g":"r"});outline:none;font-size:12px;font-weight:600;color:var(--tx);width:100%;font-family:inherit" autofocus/>`;
+  const inp=document.getElementById("de-"+id);inp?.select();
+  const done=()=>{const v=inp?.value.trim();if(v){tx.desc=v;saveAll();}rePanel(tx.t);};
+  inp?.addEventListener("blur",done);
+  inp?.addEventListener("keydown",e=>{if(e.key==="Enter")done();if(e.key==="Escape")rePanel(tx.t);});
+}
+// inline edit amount
+function edAmt(id){
+  const el=document.getElementById("a-"+id);if(!el)return;
+  const tx=txs.find(t=>t.id===id);if(!tx)return;
+  const col=tx.t==="in"?"var(--g)":"var(--r)";
+  el.outerHTML=`<input id="ae-${id}" type="number" value="${tx.amt}" style="background:transparent;border:none;border-bottom:2px solid ${col};outline:none;font-size:14px;font-weight:700;color:${col};width:80px;font-family:inherit" autofocus/>`;
+  const inp=document.getElementById("ae-"+id);inp?.select();
+  const done=()=>{const n=parseFloat(inp?.value||"");if(!isNaN(n)&&n>0){tx.amt=n;saveAll();}rePanel(tx.t);reSaldo();};
+  inp?.addEventListener("blur",done);
+  inp?.addEventListener("keydown",e=>{if(e.key==="Enter")done();if(e.key==="Escape")rePanel(tx.t);});
+}
+// delete
+function delTx(id){
+  const tx=txs.find(t=>t.id===id);
+  txs=txs.filter(t=>t.id!==id);saveAll();
+  if(tx)rePanel(tx.t);
+  renderMonth();
+}
+function setFilt(f){curFilt=f;renderMonth();}
 
-  useEffect(()=>{
-    if(!user)return;
-    const saved=stor.ld(user,"txs",null);
-    setTxs(saved!==null?saved:SEED);
-    setICats(stor.ld(user,"iCats",["Salário","Freelance","Dividendos"]));
-    setOCats(stor.ld(user,"oCats",["Moradia","Alimentação","Lazer"]));
-    setDark(stor.ld(user,"dark",true));
-  },[user]);
+// ── YEAR ──
+function renderYear(){
+  const ys=cs(txs);
+  const sc=ys.s>=0?"var(--g)":"var(--r)";
+  const sbg=ys.s>=0?"var(--gbg)":"var(--rbg)";
+  const sbd=ys.s>=0?"var(--gbd)":"var(--rbd)";
+  const yd=MK.map((k,i)=>{const s=cs(txs.filter(t=>t.dt.startsWith(k)));return{m:MO[i],key:k,...s};});
 
-  useEffect(()=>{if(user)stor.sv(user,"txs",txs);},[txs,user]);
-  useEffect(()=>{if(user)stor.sv(user,"iCats",iCats);},[iCats,user]);
-  useEffect(()=>{if(user)stor.sv(user,"oCats",oCats);},[oCats,user]);
-  useEffect(()=>{if(user)stor.sv(user,"dark",dark);},[dark,user]);
-
-  if(!user)return <UserPicker onPick={setUser}/>;
-
-  const c=dark?DK:LT;
-  const cc=dark?CDK:CLT;
-  const isYear=tab==="year";
-  const mTxs=txs.filter(t=>t.date.startsWith(tab));
-  const fTxs=filt==="todos"?mTxs:mTxs.filter(t=>t.type===filt);
-  const yS=cst(txs);
-
-  const upd=(id,p)=>setTxs(a=>a.map(t=>t.id===id?{...t,...p}:t));
-  const del=(id)=>setTxs(a=>a.filter(t=>t.id!==id));
-  const add=(t)=>setTxs(a=>[{id:Date.now(),...t},...a]);
-
-  const yData=MK.map((k,i)=>{const s=cst(txs.filter(t=>t.date.startsWith(k)));return{mes:MN[i],...s,key:k};});
-  const card={background:c.sur,border:"1px solid "+c.bd,borderRadius:20,padding:"24px",boxShadow:c.sh};
-  const tip={background:c.cb,border:"1px solid "+c.bd,borderRadius:10,color:c.tx,fontSize:12,boxShadow:c.sh};
-  const pD=Object.entries(mTxs.filter(t=>t.amount<0).reduce((a,t)=>{a[t.category]=(a[t.category]||0)+Math.abs(t.amount);return a;},{})).map(([n,v])=>({name:n,value:v}));
-
-  // Filter txs per panel
-  const inTxs=mTxs.filter(t=>t.amount>0&&iCats.includes(t.category));
-  const outTxs=mTxs.filter(t=>t.amount<0&&oCats.includes(t.category));
-
-  return <div style={{fontFamily:"'Plus Jakarta Sans',sans-serif",background:c.bg,minHeight:"100vh",color:c.tx,transition:"background 0.3s,color 0.3s"}}>
-    <style>{`
-      .txr:hover{background:${c.hov}}
-      input:focus,select:focus{border-color:${c.gr}!important;outline:none!important}
-      input,select{font-family:'Plus Jakarta Sans',sans-serif;}
-    `}</style>
-
-    {/* NAV */}
-    <div style={{borderBottom:"1px solid "+c.bd,background:dark?"rgba(22,25,33,0.95)":c.sur,
-      position:"sticky",top:0,zIndex:100,backdropFilter:"blur(12px)"}}>
-      <div style={{maxWidth:1080,margin:"0 auto",padding:"0 24px",height:58,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <div style={{width:34,height:34,borderRadius:10,
-            background:dark?"linear-gradient(135deg,#4ade80,#22d3ee)":"linear-gradient(135deg,#16a34a,#0891b2)",
-            display:"flex",alignItems:"center",justifyContent:"center",fontSize:17}}>💰</div>
-          <div>
-            <div style={{fontSize:15,fontWeight:800,color:c.tx,letterSpacing:2,textTransform:"uppercase",lineHeight:1}}>FINANÇAS 2026</div>
-            <div style={{fontSize:10,color:c.fa,marginTop:2}}>👤 {user}</div>
-          </div>
-        </div>
-        <div style={{display:"flex",gap:10,alignItems:"center"}}>
-          <button onClick={()=>setDark(v=>!v)}
-            style={{display:"flex",alignItems:"center",gap:8,background:c.alt,border:"1px solid "+c.bd,
-              borderRadius:20,padding:"6px 14px",cursor:"pointer",transition:"all 0.2s",color:c.tx,fontSize:12,fontWeight:600,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
-            <span style={{fontSize:14}}>{dark?"☀️":"🌙"}</span>{dark?"Tema Claro":"Tema Escuro"}
-          </button>
-          <button onClick={()=>setUser(null)}
-            style={{background:"none",border:"1px solid "+c.bd,borderRadius:20,padding:"6px 12px",
-              color:c.fa,fontSize:11,cursor:"pointer",fontWeight:600,transition:"all 0.15s",fontFamily:"'Plus Jakarta Sans',sans-serif"}}
-            onMouseEnter={e=>{e.currentTarget.style.borderColor=c.re;e.currentTarget.style.color=c.re;}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor=c.bd;e.currentTarget.style.color=c.fa;}}>
-            Trocar perfil
-          </button>
-        </div>
+  let det="";
+  if(ymTab){
+    const mt=txs.filter(t=>t.dt.startsWith(ymTab));
+    const ms=cs(mt);const mi=MK.indexOf(ymTab);
+    const sco=ms.s>=0?"var(--g)":"var(--r)";
+    det=`<div class="ymd">
+      <div class="ymsg">
+        <div class="ymsc"><div class="ymsl">Saldo — ${MO[mi]}</div><div class="ymsv" style="color:${sco}">${R(ms.s)}</div></div>
+        <div class="ymsc"><div class="ymsl">Entradas — ${MO[mi]}</div><div class="ymsv" style="color:var(--g)">${R(ms.e)}</div></div>
+        <div class="ymsc"><div class="ymsl">Saídas — ${MO[mi]}</div><div class="ymsv" style="color:var(--r)">${R(ms.o)}</div></div>
       </div>
-    </div>
-
-    <div style={{maxWidth:1080,margin:"0 auto",padding:"28px 24px"}}>
-      {/* MONTH TABS */}
-      <div style={{overflowX:"auto",marginBottom:28,paddingBottom:2}}>
-        <div style={{background:c.sur,border:"1px solid "+c.bd,borderRadius:14,padding:"5px",
-          display:"inline-flex",gap:3,minWidth:"max-content",boxShadow:c.sh}}>
-          {MK.map((k,i)=>{
-            const has=txs.some(t=>t.date.startsWith(k));
-            const on=tab===k;
-            return <button key={k} onClick={()=>{setTab(k);setFilt("todos");}}
-              style={{padding:"7px 14px",borderRadius:10,fontSize:12,fontWeight:600,cursor:"pointer",border:"none",
-                transition:"all 0.18s",fontFamily:"'Plus Jakarta Sans',sans-serif",whiteSpace:"nowrap",
-                background:on?c.ton:"transparent",color:on?c.tof:has?c.tx:c.fa}}>
-              {MN[i]}{has&&!on&&<span style={{display:"inline-block",width:5,height:5,borderRadius:"50%",background:c.gr,marginLeft:5,verticalAlign:"middle"}}/>}
-            </button>;
-          })}
-          <div style={{width:1,background:c.bd,margin:"4px 4px"}}/>
-          <button onClick={()=>{setTab("year");setYM(null);}}
-            style={{padding:"7px 16px",borderRadius:10,fontSize:12,fontWeight:700,cursor:"pointer",border:"none",
-              transition:"all 0.18s",fontFamily:"'Plus Jakarta Sans',sans-serif",whiteSpace:"nowrap",
-              background:tab==="year"?c.ye:"transparent",color:tab==="year"?(dark?"#0d0f14":"#fff"):c.ye}}>
-            Ano Total ★
-          </button>
-        </div>
+      ${mt.length?`<div class="ymtl">${mt.map(tx=>`
+        <div class="ymti">
+          <div class="ymtic ${tx.t==="in"?"g":"r"}">${tx.t==="in"?"↑":"↓"}</div>
+          <div class="ymti-info"><div class="ymtidesc">${tx.desc}</div><div class="ymticat">${tx.cat} · ${FD(tx.dt)}</div></div>
+          <span class="ymtiamt ${tx.t==="in"?"g":"r"}">${tx.t==="in"?"+":"−"}${R(tx.amt)}</span>
+        </div>`).join("")}</div>
+      `:`<div class="ymempty">Nenhuma transação em ${MO[mi]}</div>`}
+      <div class="ymgoto"><button class="bmgoto" onclick="swTab('${ymTab}')">Ir para ${MO[mi]} para editar →</button></div>
+    </div>`;
+  } else {
+    det=`<div class="ytable">
+      <div class="yth"><div>Mês</div><div>Entradas</div><div>Saídas</div><div>Saldo</div><div></div></div>
+      <div class="ytb">${yd.map(row=>{
+        const has=txs.some(t=>t.dt.startsWith(row.key));
+        const rsc=row.s>=0?"var(--g)":"var(--r)";
+        return`<div class="ytd${has?"":" fa"}">${row.m}</div>
+          <div class="ytd g">${has?R(row.e):"—"}</div>
+          <div class="ytd r">${has?R(row.o):"—"}</div>
+          <div class="ytd b" style="color:${rsc}">${has?R(row.s):"—"}</div>
+          <div class="ytd"><button style="background:var(--sur2);border:1px solid var(--bd);color:var(--mu);border-radius:8px;padding:3px 10px;font-size:11px;transition:all .15s" onmouseover="this.style.borderColor='var(--g)';this.style.color='var(--g)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--mu)'" onclick="setYM('${row.key}')">ver</button></div>`;
+      }).join("")}</div>
+      <div class="ytf-row">
+        <div class="ytf" style="color:var(--y)">Total 2026</div>
+        <div class="ytf" style="color:var(--g)">${R(ys.e)}</div>
+        <div class="ytf" style="color:var(--r)">${R(ys.o)}</div>
+        <div class="ytf" style="color:${sc}">${R(ys.s)}</div>
+        <div class="ytf"></div>
       </div>
+    </div>`;
+  }
 
-      {/* MONTH VIEW */}
-      {!isYear&&<div className="fade" key={tab}>
-        {/* Top row: saldo + entradas + saidas */}
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:18,marginBottom:28}}>
-          <SaldoCard mTxs={mTxs} c={c} dark={dark}/>
-          <TabPanel title="↑ ENTRADAS" color={c.gr} colorBg={c.grb} colorBd={c.grd}
-            txs={inTxs} mKey={tab} onUpdate={upd} onRemove={del} onAdd={add}
-            c={c} dark={dark} cats={iCats} setCats={setICats}/>
-          <TabPanel title="↓ SAÍDAS" color={c.re} colorBg={c.reb} colorBd={c.red}
-            txs={outTxs} mKey={tab} onUpdate={upd} onRemove={del} onAdd={add}
-            c={c} dark={dark} cats={oCats} setCats={setOCats} defaultCat="Moradia"/>
-        </div>
+  const el=document.getElementById("content");
+  el.className="fade";
+  el.innerHTML=`
+  <div class="ygrid">
+    <div class="ytc" style="background:${sbg};border:1px solid ${sbd};box-shadow:var(--sh)"><div class="ytl">Saldo Anual</div><div class="ytv" style="color:${sc}">${R(ys.s)}</div></div>
+    <div class="ytc gc" style="box-shadow:var(--sh)"><div class="ytl">Total Entradas</div><div class="ytv" style="color:var(--g)">${R(ys.e)}</div></div>
+    <div class="ytc rc" style="box-shadow:var(--sh)"><div class="ytl">Total Saídas</div><div class="ytv" style="color:var(--r)">${R(ys.o)}</div></div>
+  </div>
+  <div class="ycharts">
+    <div class="card"><div class="ctit">Evolução do Saldo</div><div class="csub">Saldo mensal 2026</div><canvas id="yl" height="190"></canvas></div>
+    <div class="card"><div class="ctit">Entradas vs Saídas</div><div class="csub">Comparativo 2026</div><canvas id="yb" height="190"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ctit" style="margin-bottom:2px">Detalhamento por Mês</div>
+    <div class="csub">Selecione um mês para expandir</div>
+    <div class="ymtabs">${yd.map(row=>{
+      const has=txs.some(t=>t.dt.startsWith(row.key)),on=ymTab===row.key;
+      const ms=cs(txs.filter(t=>t.dt.startsWith(row.key)));
+      const dc=ms.s>=0?"var(--g)":"var(--r)";
+      return`<button class="ymtab${has?" has":""}${on?" on":""}" onclick="setYM('${row.key}')">${row.m}${has&&!on?`<span class="ymdot" style="background:${dc}"></span>`:""}</button>`;
+    }).join("")}</div>
+    ${det}
+  </div>`;
 
-        {/* Charts */}
-        {mTxs.length>0&&<div style={{display:"grid",gridTemplateColumns:"1fr 1.4fr",gap:18,marginBottom:28}}>
-          <div style={card}>
-            <div style={{fontSize:12,fontWeight:700,color:c.mu,marginBottom:2}}>Gastos por Categoria</div>
-            <div style={{fontSize:11,color:c.fa,marginBottom:14}}>Distribuição das saídas</div>
-            {pD.length>0?<>
-              <ResponsiveContainer width="100%" height={160}>
-                <PieChart>
-                  <Pie data={pD} cx="50%" cy="50%" innerRadius={46} outerRadius={70} paddingAngle={3} dataKey="value">
-                    {pD.map((_,i)=><Cell key={i} fill={cc[i%cc.length]}/>)}
-                  </Pie>
-                  <Tooltip formatter={v=>fBRL(v)} contentStyle={tip}/>
-                </PieChart>
-              </ResponsiveContainer>
-              <div style={{display:"flex",flexDirection:"column",gap:5,marginTop:8}}>
-                {pD.map((d,i)=><div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:7}}>
-                    <div style={{width:8,height:8,borderRadius:2,background:cc[i%cc.length],flexShrink:0}}/>
-                    <span style={{fontSize:11,color:c.mu}}>{d.name}</span>
-                  </div>
-                  <span style={{fontSize:11,fontWeight:700,color:c.tx}}>{fBRL(d.value)}</span>
-                </div>)}
-              </div>
-            </>:<div style={{textAlign:"center",color:c.fa,padding:"40px 0",fontSize:13}}>Sem saídas este mês</div>}
-          </div>
-          <div style={card}>
-            <div style={{fontSize:12,fontWeight:700,color:c.mu,marginBottom:2}}>Resumo do Mês</div>
-            <div style={{fontSize:11,color:c.fa,marginBottom:14}}>Entradas vs Saídas — {MN[MK.indexOf(tab)]}</div>
-            <ResponsiveContainer width="100%" height={215}>
-              <BarChart data={[{name:"Mês",...cst(mTxs)}]} barCategoryGap="40%">
-                <CartesianGrid strokeDasharray="3 3" stroke={c.cg} vertical={false}/>
-                <XAxis dataKey="name" stroke={c.ct} tick={{fontSize:11,fill:c.ct}} axisLine={false} tickLine={false}/>
-                <YAxis stroke={c.ct} tick={{fontSize:10,fill:c.ct}} tickFormatter={v=>"R$"+v/1000+"k"} axisLine={false} tickLine={false}/>
-                <Tooltip formatter={v=>fBRL(v)} contentStyle={tip}/>
-                <Bar dataKey="entradas" fill={c.gr} radius={[8,8,0,0]} name="Entradas" maxBarSize={60}/>
-                <Bar dataKey="saidas" fill={c.re} radius={[8,8,0,0]} name="Saídas" maxBarSize={60}/>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>}
+  // line
+  charts.yl=new Chart(document.getElementById("yl").getContext("2d"),{
+    type:"line",
+    data:{labels:yd.map(d=>d.m),datasets:[{label:"Saldo",data:yd.map(d=>d.s),borderColor:dark?"#4ade80":"#16a34a",backgroundColor:"transparent",borderWidth:2.5,pointBackgroundColor:dark?"#4ade80":"#16a34a",pointRadius:3,tension:0.3}]},
+    options:{plugins:{legend:{labels:{color:"var(--mu)",font:{family:"'Plus Jakarta Sans'",size:11}}}},scales:{x:{grid:{display:false},ticks:{color:"var(--fa)"}},y:{grid:{color:dark?"#1f2333":"#e8edf4"},ticks:{color:"var(--fa)",callback:v=>"R$"+v/1000+"k"}}},animation:{duration:400}}
+  });
+  // bar
+  charts.yb=new Chart(document.getElementById("yb").getContext("2d"),{
+    type:"bar",
+    data:{labels:yd.map(d=>d.m),datasets:[
+      {label:"Entradas",data:yd.map(d=>d.e),backgroundColor:dark?"#4ade80":"#16a34a",borderRadius:4},
+      {label:"Saídas",data:yd.map(d=>d.o),backgroundColor:dark?"#f87171":"#dc2626",borderRadius:4}
+    ]},
+    options:{plugins:{legend:{labels:{color:"var(--mu)",font:{family:"'Plus Jakarta Sans'",size:11}}}},scales:{x:{grid:{display:false},ticks:{color:"var(--fa)"}},y:{grid:{color:dark?"#1f2333":"#e8edf4"},ticks:{color:"var(--fa)",callback:v=>v/1000+"k"}}},animation:{duration:400}}
+  });
+}
+function setYM(k){ymTab=ymTab===k?null:k;renderYear();}
 
-        {/* Transaction list */}
-        <div style={card}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
-            <div>
-              <div style={{fontSize:13,fontWeight:700,color:c.tx}}>
-                Transações
-                <span style={{marginLeft:8,background:c.alt,border:"1px solid "+c.bd,padding:"2px 8px",borderRadius:20,fontSize:11,color:c.fa,fontWeight:500}}>{mTxs.length}</span>
-              </div>
-              <div style={{fontSize:11,color:c.fa,marginTop:2}}>{MN[MK.indexOf(tab)]} 2026</div>
-            </div>
-            <div style={{display:"flex",gap:5}}>
-              {["todos","entrada","saída"].map(f=><button key={f} onClick={()=>setFilt(f)}
-                style={{padding:"5px 14px",borderRadius:20,fontSize:12,fontWeight:600,cursor:"pointer",border:"1px solid",
-                  transition:"all 0.15s",fontFamily:"'Plus Jakarta Sans',sans-serif",
-                  background:filt===f?c.ton:"transparent",color:filt===f?c.tof:c.fa,borderColor:filt===f?c.ton:c.bd}}>
-                {f.charAt(0).toUpperCase()+f.slice(1)}
-              </button>)}
-            </div>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:2}}>
-            {fTxs.map(tx=><div key={tx.id} className="txr"
-              style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 12px"}}>
-              <div style={{display:"flex",alignItems:"center",gap:12,flex:1,minWidth:0}}>
-                <div style={{width:34,height:34,borderRadius:10,flexShrink:0,
-                  background:tx.amount>0?c.grb:c.reb,border:"1px solid "+(tx.amount>0?c.grd:c.red),
-                  display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:tx.amount>0?c.gr:c.re,fontWeight:700}}>
-                  {tx.amount>0?"↑":"↓"}
-                </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:13,fontWeight:600,color:c.tx,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{tx.desc}</div>
-                  <div style={{fontSize:11,color:c.fa,marginTop:1}}>{tx.category} · {new Date(tx.date+"T12:00").toLocaleDateString("pt-BR")}</div>
-                </div>
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
-                <span style={{fontSize:14,fontWeight:700,color:tx.amount>0?c.gr:c.re}}>
-                  {tx.amount>0?"+":""}{fBRL(tx.amount)}
-                </span>
-                <button onClick={()=>del(tx.id)}
-                  style={{background:"none",border:"none",color:c.bd,cursor:"pointer",fontSize:14,transition:"color 0.15s",padding:"2px 4px"}}
-                  onMouseEnter={e=>e.currentTarget.style.color=c.re}
-                  onMouseLeave={e=>e.currentTarget.style.color=c.bd}>✕</button>
-              </div>
-            </div>)}
-            {fTxs.length===0&&<div style={{textAlign:"center",color:c.fa,padding:"32px 0",fontSize:13}}>
-              Nenhuma transação em {MN[MK.indexOf(tab)]}
-            </div>}
-          </div>
-        </div>
-      </div>}
-
-      {/* YEAR VIEW */}
-      {isYear&&<div className="fade">
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:18,marginBottom:24}}>
-          {[
-            {l:"Saldo Anual",v:yS.saldo,col:yS.saldo>=0?c.gr:c.re,bg:yS.saldo>=0?c.grb:c.reb,bd:yS.saldo>=0?c.grd:c.red},
-            {l:"Total Entradas",v:yS.entradas,col:c.gr,bg:c.grb,bd:c.grd},
-            {l:"Total Saídas",v:yS.saidas,col:c.re,bg:c.reb,bd:c.red},
-          ].map((x,i)=><div key={i} style={{...card,background:x.bg,border:"1px solid "+x.bd}}>
-            <div style={{fontSize:10,color:c.fa,textTransform:"uppercase",letterSpacing:2,marginBottom:10,fontWeight:600}}>{x.l}</div>
-            <div style={{fontSize:28,fontWeight:700,color:x.col}}>{fBRL(x.v)}</div>
-          </div>)}
-        </div>
-
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:18,marginBottom:24}}>
-          <div style={card}>
-            <div style={{fontSize:12,fontWeight:700,color:c.mu,marginBottom:2}}>Evolução do Saldo</div>
-            <div style={{fontSize:11,color:c.fa,marginBottom:14}}>Saldo mensal 2026</div>
-            <ResponsiveContainer width="100%" height={190}>
-              <LineChart data={yData}>
-                <CartesianGrid strokeDasharray="3 3" stroke={c.cg} vertical={false}/>
-                <XAxis dataKey="mes" stroke={c.ct} tick={{fontSize:10,fill:c.ct}} axisLine={false} tickLine={false}/>
-                <YAxis stroke={c.ct} tick={{fontSize:9,fill:c.ct}} tickFormatter={v=>"R$"+v/1000+"k"} axisLine={false} tickLine={false}/>
-                <Tooltip formatter={v=>fBRL(v)} contentStyle={tip}/>
-                <Line type="monotone" dataKey="saldo" stroke={c.gr} strokeWidth={2.5} dot={{fill:c.gr,r:3,strokeWidth:0}} activeDot={{r:5}} name="Saldo"/>
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <div style={card}>
-            <div style={{fontSize:12,fontWeight:700,color:c.mu,marginBottom:2}}>Entradas vs Saídas por Mês</div>
-            <div style={{fontSize:11,color:c.fa,marginBottom:14}}>Comparativo 2026</div>
-            <ResponsiveContainer width="100%" height={190}>
-              <BarChart data={yData} barGap={3} barCategoryGap="30%">
-                <CartesianGrid strokeDasharray="3 3" stroke={c.cg} vertical={false}/>
-                <XAxis dataKey="mes" stroke={c.ct} tick={{fontSize:10,fill:c.ct}} axisLine={false} tickLine={false}/>
-                <YAxis stroke={c.ct} tick={{fontSize:9,fill:c.ct}} tickFormatter={v=>v/1000+"k"} axisLine={false} tickLine={false}/>
-                <Tooltip formatter={v=>fBRL(v)} contentStyle={tip}/>
-                <Legend wrapperStyle={{fontSize:11,color:c.mu}}/>
-                <Bar dataKey="entradas" fill={c.gr} radius={[4,4,0,0]} name="Entradas" maxBarSize={22}/>
-                <Bar dataKey="saidas" fill={c.re} radius={[4,4,0,0]} name="Saídas" maxBarSize={22}/>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Month tabs breakdown */}
-        <div style={card}>
-          <div style={{fontSize:12,fontWeight:700,color:c.mu,marginBottom:2}}>Detalhamento por Mês</div>
-          <div style={{fontSize:11,color:c.fa,marginBottom:18}}>Selecione um mês para expandir</div>
-          <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:20,padding:"6px",background:c.alt,borderRadius:14,border:"1px solid "+c.bd}}>
-            {yData.map(row=>{
-              const has=txs.some(t=>t.date.startsWith(row.key));
-              const on=yM===row.key;
-              const ms=cst(txs.filter(t=>t.date.startsWith(row.key)));
-              return <button key={row.key} onClick={()=>setYM(on?null:row.key)}
-                style={{padding:"6px 13px",borderRadius:10,fontSize:12,fontWeight:600,cursor:"pointer",border:"1px solid",
-                  transition:"all 0.18s",fontFamily:"'Plus Jakarta Sans',sans-serif",
-                  background:on?c.ton:"transparent",color:on?c.tof:has?c.tx:c.fa,borderColor:on?c.ton:has?c.bd2:c.bd}}>
-                {row.mes}{has&&!on&&<span style={{display:"inline-block",width:5,height:5,borderRadius:"50%",
-                  background:ms.saldo>=0?c.gr:c.re,marginLeft:4,verticalAlign:"middle"}}/>}
-              </button>;
-            })}
-          </div>
-
-          {yM?(()=>{
-            const mt=txs.filter(t=>t.date.startsWith(yM));
-            const ms=cst(mt);
-            const mi=MK.indexOf(yM);
-            return <div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:18}}>
-                {[
-                  {l:"Saldo",v:ms.saldo,col:ms.saldo>=0?c.gr:c.re},
-                  {l:"Entradas",v:ms.entradas,col:c.gr},
-                  {l:"Saídas",v:ms.saidas,col:c.re},
-                ].map((x,i)=><div key={i} style={{background:c.alt,borderRadius:12,padding:"12px 16px",border:"1px solid "+c.bd}}>
-                  <div style={{fontSize:9,color:c.fa,textTransform:"uppercase",letterSpacing:1.5,marginBottom:4,fontWeight:600}}>{x.l} — {MN[mi]}</div>
-                  <div style={{fontSize:20,fontWeight:700,color:x.col}}>{fBRL(x.v)}</div>
-                </div>)}
-              </div>
-              {mt.length===0?<div style={{textAlign:"center",color:c.fa,padding:"28px 0",fontSize:13}}>Nenhuma transação em {MN[mi]}</div>:
-                <div style={{display:"flex",flexDirection:"column",gap:2,maxHeight:320,overflowY:"auto"}}>
-                  {mt.map(tx=><div key={tx.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",
-                    padding:"9px 12px",borderRadius:10,background:c.alt,border:"1px solid "+c.bd,marginBottom:2}}>
-                    <div style={{display:"flex",alignItems:"center",gap:10,flex:1,minWidth:0}}>
-                      <div style={{width:28,height:28,borderRadius:8,flexShrink:0,
-                        background:tx.amount>0?c.grb:c.reb,border:"1px solid "+(tx.amount>0?c.grd:c.red),
-                        display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:tx.amount>0?c.gr:c.re,fontWeight:700}}>
-                        {tx.amount>0?"↑":"↓"}
-                      </div>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:12,fontWeight:600,color:c.tx,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{tx.desc}</div>
-                        <div style={{fontSize:10,color:c.fa}}>{tx.category}</div>
-                      </div>
-                    </div>
-                    <span style={{fontSize:13,fontWeight:700,color:tx.amount>0?c.gr:c.re,flexShrink:0}}>
-                      {tx.amount>0?"+":""}{fBRL(tx.amount)}
-                    </span>
-                  </div>)}
-                </div>
-              }
-              <div style={{marginTop:14,textAlign:"center"}}>
-                <button onClick={()=>setTab(yM)}
-                  style={{background:c.alt,border:"1px solid "+c.bd,borderRadius:10,padding:"8px 18px",
-                    color:c.mu,fontSize:12,cursor:"pointer",fontWeight:600,fontFamily:"'Plus Jakarta Sans',sans-serif",transition:"all 0.15s"}}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor=c.gr;e.currentTarget.style.color=c.gr;}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor=c.bd;e.currentTarget.style.color=c.mu;}}>
-                  Ir para {MN[mi]} para editar →
-                </button>
-              </div>
-            </div>;
-          })():(
-            <div style={{borderRadius:12,overflow:"hidden",border:"1px solid "+c.bd}}>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr 70px",background:c.alt}}>
-                {["Mês","Entradas","Saídas","Saldo",""].map((h,i)=><div key={i}
-                  style={{fontSize:10,color:c.fa,textTransform:"uppercase",letterSpacing:1.5,padding:"10px 14px",fontWeight:700,borderBottom:"1px solid "+c.bd}}>{h}</div>)}
-              </div>
-              {yData.map((row,i)=>{
-                const has=txs.some(t=>t.date.startsWith(row.key));
-                return [
-                  <div key={"m"+i} style={{padding:"11px 14px",borderBottom:"1px solid "+c.bd,fontSize:13,fontWeight:600,color:has?c.tx:c.fa,background:c.sur}}>{row.mes}</div>,
-                  <div key={"e"+i} style={{padding:"11px 14px",borderBottom:"1px solid "+c.bd,fontSize:13,color:has?c.gr:c.fa,background:c.sur}}>
-  {fBRL(row.entradas)}
-</div>,
-<div key={"s"+i} style={{padding:"11px 14px",borderBottom:"1px solid "+c.bd,fontSize:13,color:has?c.re:c.fa,background:c.sur}}>
-  {fBRL(row.saidas)}
-</div>,
-<div key={"sa"+i} style={{padding:"11px 14px",borderBottom:"1px solid "+c.bd,fontSize:13,fontWeight:700,color:row.saldo>=0?c.gr:c.re,background:c.sur}}>
-  {fBRL(row.saldo)}
-</div>,
-<div key={"b"+i} style={{padding:"11px 14px",borderBottom:"1px solid "+c.bd,background:c.sur,textAlign:"right"}}>
-  {has && (
-    <button
-      onClick={()=>setTab(row.key)}
-      style={{
-        background:"none",
-        border:"none",
-        color:c.mu,
-        cursor:"pointer",
-        fontSize:12,
-        fontWeight:600
-      }}
-      onMouseEnter={e=>e.currentTarget.style.color=c.gr}
-      onMouseLeave={e=>e.currentTarget.style.color=c.mu}
-    >
-      Ver →
-    </button>
-  )}
-</div>
+// ── INIT ──
+renderPicker();
+</script>
+</body>
 </html>
