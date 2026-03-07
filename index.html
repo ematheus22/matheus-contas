@@ -1231,8 +1231,15 @@ function rebuildSharedTxsForActiveProfile(){
               _sharedAccountId:sa.id, _sharedExpId:exp.id, _sharedRole:'payer-credit-card'
             });
           }
+        } else if(mySplit && myShare>0){
+          // Participante: lança como saída (é uma dívida na fatura do cartão)
+          S.db[yk][mk].push({
+            id:uid(), type:'out',
+            desc:`[Cartão] ${exp.desc} (pago por ${payerName})`,
+            cat:'Compartilhado', val:parseFloat(myShare.toFixed(2)), date:dateStr,
+            _sharedAccountId:sa.id, _sharedExpId:exp.id, _sharedRole:'participant-card'
+          });
         }
-        // participante: sem lançamento
       } else {
         // DINHEIRO/PIX/DÉBITO: lança saída da parte de quem pagou + entrada do que vai receber
         if(isPayer){
@@ -1712,7 +1719,11 @@ function buildFixedExpensesPanel(){
 function buildRow(t){
   const d=t.date?t.date.split('-').reverse().slice(0,2).join('/'):'—';
   const amt=t.type==='in'?`+R$ ${fmt(t.val)}`:`−R$ ${fmt(t.val)}`;
-  const sharedBadge=t._sharedAccountId?`<span class="shared-tx-badge">🤝 Compartilhado</span>`:'';
+  const sharedBadge=t._sharedAccountId
+    ?(t._sharedRole==='participant-card'||t._sharedRole==='payer-credit-card'
+      ?`<span class="shared-tx-badge" style="background:rgba(91,156,246,.15);color:var(--blue)">💳 Cartão</span>`
+      :`<span class="shared-tx-badge">🤝 Compartilhado</span>`)
+    :'';
   const canDelete=!t._sharedAccountId;
   return `<tr>
     <td><span class="type-badge ${t.type==='in'?'badge-in':'badge-out'}">${t.type==='in'?'↑':'↓'}</span>${esc(t.desc)}${sharedBadge}</td>
