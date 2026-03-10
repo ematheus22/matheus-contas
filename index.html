@@ -406,6 +406,36 @@ input[type=range].crop-slider{width:100%;accent-color:var(--purple);}
 .bn-item.on-purple{color:var(--purple);}
 .bn-icon{font-size:18px;}
 
+/* ── MOBILE MONTH SCROLL ── */
+.mob-month-bar{display:none;overflow-x:auto;scrollbar-width:none;background:var(--c1);border-bottom:1px solid var(--b1);padding:0 8px;flex-shrink:0;}
+.mob-month-bar::-webkit-scrollbar{display:none;}
+.mob-month-bar-inner{display:flex;gap:2px;padding:6px 0;}
+.mob-month-btn{padding:6px 12px;font-size:11px;font-weight:600;border:none;background:none;color:var(--t3);cursor:pointer;white-space:nowrap;border-radius:6px;font-family:inherit;transition:all .15s;flex-shrink:0;}
+.mob-month-btn.on{background:rgba(184,240,58,.15);color:var(--green);}
+.mob-month-btn.has-d::after{content:'•';font-size:6px;vertical-align:super;margin-left:2px;color:var(--green2);}
+[data-theme="light"] .mob-month-btn.on{background:rgba(32,122,18,.1);}
+
+/* ── NOTIF BELL ── */
+.notif-btn{position:relative;width:34px;height:34px;border-radius:50%;background:none;border:1px solid var(--b1);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0;}
+.notif-btn:hover{background:var(--c2);}
+.notif-badge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:8px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;pointer-events:none;}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:320px;max-width:92vw;background:var(--c1);border:1px solid var(--b1);border-radius:12px;box-shadow:var(--sh);z-index:60;display:none;overflow:hidden;max-height:400px;flex-direction:column;}
+.notif-panel.open{display:flex;}
+.notif-head{padding:12px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.notif-head-title{font-size:12px;font-weight:700;}
+.notif-clear{font-size:10px;color:var(--t3);cursor:pointer;background:none;border:none;font-family:inherit;}
+.notif-clear:hover{color:var(--red);}
+.notif-list{overflow-y:auto;flex:1;}
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s;}
+.notif-item:last-child{border-bottom:none;}
+.notif-item:hover{background:var(--c2);}
+.notif-item.unread{background:rgba(196,123,245,.05);}
+.notif-item-title{font-size:12px;font-weight:600;margin-bottom:3px;}
+.notif-item-sub{font-size:10px;color:var(--t3);}
+.notif-item-dot{width:6px;height:6px;border-radius:50%;background:var(--purple);flex-shrink:0;margin-top:3px;}
+.notif-empty{padding:32px 16px;text-align:center;font-size:12px;color:var(--t3);}
+.notif-wrap{position:relative;}
+
 /* ── RESPONSIVE ── */
 @media(max-width:1200px){.chart-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:1100px){.kpi-grid{grid-template-columns:1fr 1fr;}.chart-grid{grid-template-columns:1fr 1fr;}}
@@ -414,9 +444,13 @@ input[type=range].crop-slider{width:100%;accent-color:var(--purple);}
   .side.open{transform:none;}
   .menu-btn{display:flex;}
   .main{margin-left:0;}
-  .topbar{padding:12px 16px;}
-  .content{padding:16px 16px 80px;}
-  .kpi-grid{grid-template-columns:1fr 1fr;}
+  .topbar{padding:10px 14px;}
+  .tb-title{font-size:13px;}
+  .tb-sub{display:none;}
+  .content{padding:12px 12px 90px;}
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:8px;}
+  .kpi{padding:12px 14px;}
+  .kpi-value{font-size:16px;}
   .chart-grid{grid-template-columns:1fr;}
   .add-row{flex-direction:column;align-items:stretch;}
   .f-desc,.f-cat,.f-val,.f-date,.cat-wrap{width:100%;}
@@ -424,40 +458,72 @@ input[type=range].crop-slider{width:100%;accent-color:var(--purple);}
   .year-nav{padding:5px 10px;font-size:12px;}
   .bottom-nav{display:block;}
   .tab-bar-wrap{display:none;}
+  .mob-month-bar{display:block;}
+  .topbar{gap:8px;}
+  /* Table scrollable on mobile */
+  .table-card{overflow-x:auto;}
+  table{min-width:480px;}
+  th,td{padding:8px 12px;}
+  /* Modals full-screen on mobile */
+  .modal{max-width:100vw;width:100%;border-radius:16px 16px 0 0;max-height:88vh;position:fixed;bottom:0;left:0;right:0;margin:0;}
+  .overlay{align-items:flex-end;}
+  .overlay.open .modal{transform:none;}
+  /* Shared cards stacked better */
+  .sc-head{flex-direction:column;align-items:flex-start;gap:8px;}
+  .sc-actions{width:100%;justify-content:flex-start;}
+  .sc-actions .sc-btn{flex:1;text-align:center;}
+  /* KPI savings menu */
+  .kpi-menu{right:0;left:auto;}
 }
 ::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
 </style>
 </head>
 <body>
 
-<!-- PIN SCREEN -->
+<!-- PIN SCREEN — profile select + per-profile PIN -->
 <div class="pin-screen" id="pin-screen">
-  <div class="pin-logo">Finance<span>OS</span></div>
-  <div class="pin-tagline">Dashboard Financeiro</div>
-  <div class="pin-title" id="pin-title">Digite seu PIN</div>
-  <div class="pin-dots" id="pin-dots">
-    <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
-    <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+  <!-- Step 1: Profile select -->
+  <div id="pin-profile-step" style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:480px;padding:0 20px">
+    <div class="pin-logo">Finance<span>OS</span></div>
+    <div class="pin-tagline">Dashboard Financeiro</div>
+    <div style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:24px;text-align:center">Quem é você?</div>
+    <div id="pin-profile-grid" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:24px"></div>
+    <div style="font-size:10px;color:var(--t3);text-align:center">Selecione seu perfil para entrar</div>
   </div>
-  <div class="pin-pad">
-    <button class="pin-key" onclick="pinKey('1')">1</button>
-    <button class="pin-key" onclick="pinKey('2')">2</button>
-    <button class="pin-key" onclick="pinKey('3')">3</button>
-    <button class="pin-key" onclick="pinKey('4')">4</button>
-    <button class="pin-key" onclick="pinKey('5')">5</button>
-    <button class="pin-key" onclick="pinKey('6')">6</button>
-    <button class="pin-key" onclick="pinKey('7')">7</button>
-    <button class="pin-key" onclick="pinKey('8')">8</button>
-    <button class="pin-key" onclick="pinKey('9')">9</button>
-    <button class="pin-key zero" onclick="pinKey('0')">0</button>
-    <button class="pin-key del" onclick="pinDel()">⌫</button>
+  <!-- Step 2: PIN entry -->
+  <div id="pin-entry-step" style="display:none;flex-direction:column;align-items:center">
+    <div class="pin-logo">Finance<span>OS</span></div>
+    <div class="pin-tagline">Dashboard Financeiro</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <div id="pin-profile-av-mini" style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0"></div>
+      <div style="font-size:14px;font-weight:700" id="pin-profile-name-lbl"></div>
+    </div>
+    <div class="pin-title" id="pin-title" style="margin-top:14px">Digite seu PIN</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key zero" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-err" id="pin-err"></div>
+    <div class="pin-reset" id="pin-reset" onclick="pinResetPrompt()">Esqueci o PIN</div>
+    <div style="margin-top:12px;font-size:10px;color:var(--t3);cursor:pointer" onclick="backToPinProfiles()">← Trocar perfil</div>
   </div>
-  <div class="pin-err" id="pin-err"></div>
-  <div class="pin-reset" id="pin-reset" style="display:none" onclick="pinResetPrompt()">Esqueci o PIN</div>
 </div>
 
 <!-- MASTER PASSWORD MODAL -->
-<div class="overlay" id="master-overlay">
+<div class="overlay" id="master-overlay" style="z-index:700">
   <div class="modal" style="width:360px">
     <div class="mo-head"><div class="mo-title">🔐 Senha Mestra</div><button class="mo-close" onclick="closeMasterModal()">×</button></div>
     <div class="mo-body">
@@ -499,9 +565,16 @@ input[type=range].crop-slider{width:100%;accent-color:var(--purple);}
       <div class="sync ok" id="sync"><div class="sync-dot"></div><span id="sync-txt">Sincronizado</span></div>
     </div>
     <div class="profile-section">
-      <div class="profile-label">Perfis</div>
-      <div class="profile-list" id="profile-list"></div>
-      <div class="add-profile-btn" onclick="openAddProfileModal()"><span style="font-size:14px">＋</span> Adicionar perfil</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 6px">
+        <div id="side-profile-av" style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;cursor:pointer" onclick="openPhotoModal('active')"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="active-profile-name-side">—</div>
+          <div style="font-size:9px;color:var(--t3);margin-top:1px">Perfil ativo</div>
+        </div>
+      </div>
+      <button onclick="promptSwitchProfile()" style="width:100%;margin-top:4px;padding:7px 10px;border-radius:7px;background:var(--c2);border:1px solid var(--b1);color:var(--t2);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;transition:all .15s" onmouseenter="this.style.background='var(--c3)'" onmouseleave="this.style.background='var(--c2)'">
+        👤 Trocar perfil
+      </button>
     </div>
     <nav class="side-nav">
       <div class="nav-section">Menu</div>
@@ -511,8 +584,13 @@ input[type=range].crop-slider{width:100%;accent-color:var(--purple);}
       <div class="nav-link" id="nav-cards" onclick="goView(14);closeDrawer()"><span class="nav-icon">💳</span><span>Cartões</span><span class="nav-badge" id="cards-badge" style="display:none">0</span></div>
     </nav>
     <div class="side-foot">
-      <div style="font-size:10px;color:var(--t3)" id="active-profile-name"></div>
-      <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+      <div style="display:flex;gap:6px;align-items:center;width:100%;justify-content:space-between">
+        <div style="display:flex;gap:6px">
+          <button class="theme-btn" title="Alterar PIN" onclick="openChangePinModal()" style="font-size:11px">🔑</button>
+          <button class="theme-btn" title="Bloquear perfil" onclick="lockProfile()" style="font-size:11px">🔒</button>
+        </div>
+        <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+      </div>
     </div>
   </aside>
 
@@ -526,11 +604,28 @@ input[type=range].crop-slider{width:100%;accent-color:var(--purple);}
           <div class="tb-sub">Controle de receitas e despesas</div>
         </div>
       </div>
-      <div class="year-nav" id="year-nav-wrap">
-        <button class="yn-btn" onclick="shiftYear(-1)">‹</button>
-        <span id="year-lbl"></span>
-        <button class="yn-btn" onclick="shiftYear(1)">›</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="notif-wrap">
+          <button class="notif-btn" id="notif-btn" onclick="toggleNotifPanel(event)" title="Notificações">🔔</button>
+          <div class="notif-badge" id="notif-badge" style="display:none">0</div>
+          <div class="notif-panel" id="notif-panel">
+            <div class="notif-head">
+              <span class="notif-head-title">🔔 Notificações</span>
+              <button class="notif-clear" onclick="clearAllNotifs()">Limpar tudo</button>
+            </div>
+            <div class="notif-list" id="notif-list"></div>
+          </div>
+        </div>
+        <div class="year-nav" id="year-nav-wrap">
+          <button class="yn-btn" onclick="shiftYear(-1)">‹</button>
+          <span id="year-lbl"></span>
+          <button class="yn-btn" onclick="shiftYear(1)">›</button>
+        </div>
       </div>
+    </div>
+    <!-- MOBILE MONTH BAR -->
+    <div class="mob-month-bar" id="mob-month-bar">
+      <div class="mob-month-bar-inner" id="mob-month-inner"></div>
     </div>
     <div class="content">
       <div class="tab-bar-wrap"><div class="tab-bar" id="tab-bar"></div></div>
@@ -748,6 +843,20 @@ input[type=range].crop-slider{width:100%;accent-color:var(--purple);}
     <div class="mo-foot">
       <button class="mo-btn mo-cancel" onclick="closeSharedExp()">Cancelar</button>
       <button class="mo-btn mo-purple" onclick="confirmSharedExp()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SWITCH PROFILE -->
+<div class="overlay" id="switch-profile-overlay">
+  <div class="modal" style="width:380px">
+    <div class="mo-head"><div class="mo-title">👤 Trocar Perfil</div><button class="mo-close" onclick="document.getElementById('switch-profile-overlay').classList.remove('open')">×</button></div>
+    <div class="mo-body" style="gap:8px">
+      <p style="font-size:12px;color:var(--t2)">Selecione o perfil para acessar. Será solicitado o PIN.</p>
+      <div id="switch-profile-list" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
+      <div style="border-top:1px solid var(--b1);padding-top:10px;margin-top:4px">
+        <button onclick="document.getElementById('switch-profile-overlay').classList.remove('open');openAddProfileModal()" style="width:100%;padding:9px;border-radius:7px;background:var(--c2);border:1px dashed var(--b2);color:var(--t3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">＋ Adicionar novo perfil</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1330,33 +1439,28 @@ function showProfileScreen(){
   requestAnimationFrame(()=>ps.classList.remove('hidden'));
 }
 async function selectProfile(pid){
-  ACTIVE_PID=pid;
-  localStorage.setItem('fos_active_pid',pid);
   const ps=document.getElementById('profile-screen');
   ps.classList.add('hidden');
   setTimeout(()=>{ps.style.display='none';},350);
-  await loadProfileData(pid);
-  rebuildSharedTxsForActiveProfile();
-  applyAllFixedToCurrentMonth();
-  renderSidebar();renderTopbar();renderTabs();renderPanel();updateSideNav();updateBottomNav();
+  await enterProfile(pid);
 }
 
 /* ══ SIDEBAR ═══════════════════════════════════════════════ */
 function renderSidebar(){
-  const list=document.getElementById('profile-list');
-  list.innerHTML=PROFILES.map(p=>`
-    <div class="profile-item ${p.id===ACTIVE_PID?'active':''}" onclick="switchProfile('${p.id}')">
-      <div class="profile-av" style="background:${p.photo?'transparent':p.color}">
-        ${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}"/>`:`${p.name[0].toUpperCase()}`}
-        <div class="profile-av-upload" onclick="event.stopPropagation();openPhotoModal('${p.id}')">📷</div>
-      </div>
-      <div class="profile-info"><div class="profile-name">${esc(p.name)}</div></div>
-      ${p.id===ACTIVE_PID?'<div class="profile-active-dot"></div>':''}
-      ${PROFILES.length>1?`<button class="profile-del" onclick="event.stopPropagation();promptDelProfile('${p.id}')" title="Excluir">✕</button>`:''}
-    </div>`).join('');
-  const p=PROFILES.find(x=>x.id===ACTIVE_PID);
+  const p=PROFILES.find(x=>x.id===ACTIVE_PID);if(!p)return;
+  // Update compact profile area
+  const av=document.getElementById('side-profile-av');
+  if(av){
+    av.style.background=p.photo?'transparent':p.color;
+    av.innerHTML=p.photo
+      ?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" alt="${esc(p.name)}"/>`
+      :`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#0d0f14">${p.name[0].toUpperCase()}</div>`;
+  }
+  const nameEl=document.getElementById('active-profile-name-side');
+  if(nameEl)nameEl.textContent=p.name;
+  // Keep legacy element updated if it exists
   const an=document.getElementById('active-profile-name');
-  if(an&&p)an.textContent=p.name;
+  if(an)an.textContent=p.name;
 }
 function renderTopbar(){
   const p=PROFILES.find(x=>x.id===ACTIVE_PID);if(!p)return;
@@ -1367,17 +1471,6 @@ function renderTopbar(){
     av.innerHTML=p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" alt="${esc(p.name)}"/>`:`${p.name[0].toUpperCase()}`;
   }
   if(ti)ti.textContent=p.name+' — Painel';
-}
-async function switchProfile(pid){
-  if(pid===ACTIVE_PID)return;
-  ACTIVE_PID=pid;
-  localStorage.setItem('fos_active_pid',pid);
-  SEARCH='';
-  await loadProfileData(pid);
-  rebuildSharedTxsForActiveProfile();
-  applyAllFixedToCurrentMonth();
-  renderSidebar();renderTopbar();renderTabs();renderPanel();updateSideNav();
-  toast('Perfil alterado.','inf');
 }
 
 /* ══ ADD PROFILE ═══════════════════════════════════════════ */
@@ -1548,10 +1641,10 @@ async function saveCrop(){
 function goView(v){
   if(v!==12&&v!==13&&v!==14)LAST_MONTH=v;
   PREFS.view=v;SEARCH='';
-  savePrefs();renderTabs();renderPanel();updateSideNav();updateBottomNav();
+  savePrefs();renderTabs();renderPanel();renderMobMonthBar();updateSideNav();updateBottomNav();
   document.getElementById('year-nav-wrap').style.display=(v===13||v===14)?'none':'';
 }
-function shiftYear(d){PREFS.year+=d;document.getElementById('year-lbl').textContent=PREFS.year;savePrefs();renderTabs();renderPanel();}
+function shiftYear(d){PREFS.year+=d;document.getElementById('year-lbl').textContent=PREFS.year;savePrefs();renderTabs();renderPanel();renderMobMonthBar();}
 function updateSideNav(){
   document.getElementById('nav-geral').className='nav-link'+(PREFS.view!==12&&PREFS.view!==13&&PREFS.view!==14?' active':'');
   document.getElementById('nav-anual').className='nav-link'+(PREFS.view===12?' active':'');
@@ -2890,76 +2983,495 @@ Chart.defaults.font.family='Inter';
   document.getElementById(id)?.addEventListener('click',e=>{if(e.target.id===id)document.getElementById(id).classList.remove('open');});
 });
 
-/* ══ PIN SYSTEM ════════════════════════════════════════════ */
-const PIN_DOC=()=>FS.collection('app_config').doc('pin');
-const PIN_SESSION='fos_pin_ok';
+/* ══ MOBILE MONTH BAR ══════════════════════════════════════ */
+function renderMobMonthBar(){
+  const inner=document.getElementById('mob-month-inner');
+  const bar=document.getElementById('mob-month-bar');
+  if(!inner||!bar)return;
+  const isMonthView=PREFS.view!==12&&PREFS.view!==13&&PREFS.view!==14;
+  bar.style.display=isMonthView?'block':'none';
+  if(!isMonthView)return;
+  inner.innerHTML=MS.map((s,i)=>{
+    const has=getMonth(PREFS.year,i).length>0;
+    return `<button class="mob-month-btn ${PREFS.view===i?'on':''} ${has?'has-d':''}" onclick="goView(${i})">${s}</button>`;
+  }).join('');
+  // Scroll active into view
+  setTimeout(()=>{
+    const active=inner.querySelector('.mob-month-btn.on');
+    if(active)active.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+  },50);
+}
+
+/* ══ NOTIFICATIONS ══════════════════════════════════════════ */
+let NOTIFS=[];
+let NOTIF_UNSUBSCRIBE=null;
+const NOTIF_KEY=()=>`fos_notifs_${ACTIVE_PID}`;
+const NOTIF_SEEN_KEY=()=>`fos_notifs_seen_${ACTIVE_PID}`;
+
+function loadNotifs(){
+  const raw=localStorage.getItem(NOTIF_KEY());
+  NOTIFS=raw?JSON.parse(raw):[];
+  updateNotifBadge();
+  renderNotifList();
+}
+function saveNotifs(){
+  localStorage.setItem(NOTIF_KEY(),JSON.stringify(NOTIFS.slice(0,50)));
+}
+function updateNotifBadge(){
+  const unread=NOTIFS.filter(n=>!n.read).length;
+  const badge=document.getElementById('notif-badge');
+  if(badge){badge.textContent=unread;badge.style.display=unread>0?'flex':'none';}
+}
+function renderNotifList(){
+  const el=document.getElementById('notif-list');if(!el)return;
+  if(!NOTIFS.length){el.innerHTML=`<div class="notif-empty">Nenhuma notificação</div>`;return;}
+  el.innerHTML=NOTIFS.slice(0,20).map(n=>`
+    <div class="notif-item ${n.read?'':'unread'}" onclick="clickNotif('${n.id}')">
+      <div style="display:flex;gap:8px;align-items:flex-start">
+        ${!n.read?`<div class="notif-item-dot"></div>`:'<div style="width:6px;flex-shrink:0"></div>'}
+        <div style="flex:1">
+          <div class="notif-item-title">${esc(n.title)}</div>
+          <div class="notif-item-sub">${esc(n.body)}</div>
+          <div class="notif-item-sub" style="margin-top:2px">${n.time||''}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function clickNotif(id){
+  const n=NOTIFS.find(x=>x.id===id);
+  if(n){n.read=true;saveNotifs();updateNotifBadge();renderNotifList();}
+  // Navigate to shared view
+  goView(13);
+  document.getElementById('notif-panel').classList.remove('open');
+}
+function clearAllNotifs(){
+  NOTIFS=[];saveNotifs();updateNotifBadge();renderNotifList();
+}
+function toggleNotifPanel(e){
+  e.stopPropagation();
+  const panel=document.getElementById('notif-panel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    renderNotifList();
+  }
+}
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('notif-panel');
+  if(panel&&!panel.closest('.notif-wrap')?.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+
+function pushNotif(title,body,saId){
+  const n={id:uid(),title,body,saId,read:false,time:new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})};
+  NOTIFS.unshift(n);
+  saveNotifs();
+  updateNotifBadge();
+  renderNotifList();
+  // Also show toast
+  toast(`🔔 ${title}`,'inf');
+}
+
+function startSharedNotifListener(){
+  if(NOTIF_UNSUBSCRIBE){NOTIF_UNSUBSCRIBE();NOTIF_UNSUBSCRIBE=null;}
+  if(!ACTIVE_PID)return;
+  // Track last known expense ids per shared account
+  const knownExpIds=new Set();
+  SHARED_ACCOUNTS.forEach(sa=>(sa.expenses||[]).forEach(e=>knownExpIds.add(e.id)));
+
+  NOTIF_UNSUBSCRIBE=SHARED_COL.onSnapshot(snap=>{
+    snap.docChanges().forEach(change=>{
+      if(change.type==='added'||change.type==='modified'){
+        const sa={id:change.doc.id,...change.doc.data()};
+        // Update local copy
+        const idx=SHARED_ACCOUNTS.findIndex(a=>a.id===sa.id);
+        if(idx>=0)SHARED_ACCOUNTS[idx]=sa;
+        else SHARED_ACCOUNTS.push(sa);
+
+        // Check for new expenses that involve ACTIVE_PID as non-payer
+        (sa.expenses||[]).forEach(exp=>{
+          if(knownExpIds.has(exp.id))return;
+          knownExpIds.add(exp.id);
+          // Is active profile a participant (not payer)?
+          const isMember=(exp.splits||[]).some(sp=>sp.pid===ACTIVE_PID);
+          const isPayer=exp.payerPid===ACTIVE_PID;
+          if(isMember&&!isPayer){
+            const payerP=PROFILES.find(p=>p.id===exp.payerPid);
+            const payerName=payerP?payerP.name:(exp.payerExternal||'Alguém');
+            const mySplit=(exp.splits||[]).find(sp=>sp.pid===ACTIVE_PID);
+            const myAmt=mySplit?`R$ ${fmt(mySplit.amount)}`:'';
+            pushNotif(
+              `Nova despesa em ${sa.name}`,
+              `${payerName} adicionou "${exp.desc}" — sua parte: ${myAmt}`
+            );
+            // Rebuild txs to reflect new expense
+            rebuildSharedTxsForActiveProfile();
+            saveProfileData();
+            if(PREFS.view===13||PREFS.view===14){renderPanel();}
+            renderTabs();
+          }
+        });
+        updateSharedBadge();
+      }
+    });
+  });
+}
+
+/* ══ PIN SYSTEM — PER PROFILE ══════════════════════════════ */
+// Per-profile PIN stored at profiles/{pid}/pin (subcollection doc)
+// OR at app_config/pins as a map {[pid]: hash}
+const PINS_DOC=FS.collection('app_config').doc('pins');
+const PIN_SESSION_KEY=pid=>`fos_pin_ok_${pid}`;
 let PIN_ENTRY='',PIN_MODE='verify',PIN_FIRST='',PIN_LOADING=false;
+let PIN_TARGET_PID=null; // which profile we're authenticating
 
 async function pinHash(s){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-function showPinScreen(mode){
-  PIN_MODE=mode;PIN_ENTRY='';PIN_FIRST='';PIN_LOADING=false;
+
+async function loadPinMap(){
+  try{const snap=await PINS_DOC.get();return snap.exists?(snap.data()||{}):{}}
+  catch(e){return {};}
+}
+async function savePinHash(pid,hash){
+  try{await PINS_DOC.set({[pid]:hash},{merge:true});}
+  catch(e){console.warn('savePinHash:',e);}
+}
+async function deletePinHash(pid){
+  try{
+    const map=await loadPinMap();
+    delete map[pid];
+    await PINS_DOC.set(map);
+  }catch(e){console.warn('deletePinHash:',e);}
+}
+
+/* ── Profile grid on PIN screen ── */
+function renderPinProfileGrid(){
+  const grid=document.getElementById('pin-profile-grid');if(!grid)return;
+  grid.innerHTML=PROFILES.map(p=>`
+    <div onclick="selectPinProfile('${p.id}')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:16px 18px;background:var(--c1);border:1px solid var(--b1);border-radius:12px;min-width:100px;transition:all .18s" onmouseenter="this.style.borderColor='var(--green)'" onmouseleave="this.style.borderColor='var(--b1)'">
+      ${avHTML(p,52,'margin:0 auto;')}
+      <div style="font-size:13px;font-weight:600;text-align:center">${esc(p.name)}</div>
+    </div>`).join('');
+}
+
+async function selectPinProfile(pid){
+  PIN_TARGET_PID=pid;
+  const p=PROFILES.find(x=>x.id===pid);if(!p)return;
+
+  // Check if this profile has a PIN
+  const pinMap=await loadPinMap();
+  const hasPin=!!pinMap[pid];
+
+  // Show entry step
+  document.getElementById('pin-profile-step').style.display='none';
+  const entryStep=document.getElementById('pin-entry-step');
+  entryStep.style.display='flex';
+  // Set mini avatar
+  const avEl=document.getElementById('pin-profile-av-mini');
+  avEl.style.background=p.photo?'transparent':p.color;
+  avEl.innerHTML=p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"/>`:`<span style="font-size:14px;font-weight:700;color:#0d0f14;display:flex;align-items:center;justify-content:center;height:100%">${p.name[0].toUpperCase()}</span>`;
+  document.getElementById('pin-profile-name-lbl').textContent=p.name;
+
+  PIN_ENTRY='';PIN_FIRST='';PIN_LOADING=false;
+  document.getElementById('pin-err').textContent='';
+  pinUpdateDots();
+
+  if(!hasPin){
+    // No PIN yet — create one
+    showPinStep('create');
+  } else {
+    showPinStep('verify');
+  }
+}
+
+function showPinStep(mode){
+  PIN_MODE=mode;
+  const titles={verify:'Digite seu PIN',create:'Crie um PIN de 4 dígitos',confirm:'Confirme seu PIN'};
+  document.getElementById('pin-title').textContent=titles[mode]||'';
+  document.getElementById('pin-reset').style.display=mode==='verify'?'block':'none';
+}
+
+function backToPinProfiles(){
+  PIN_TARGET_PID=null;
+  document.getElementById('pin-entry-step').style.display='none';
+  document.getElementById('pin-profile-step').style.display='flex';
+  PIN_ENTRY='';pinUpdateDots();
+  document.getElementById('pin-err').textContent='';
+}
+
+function showPinScreen(){
   const screen=document.getElementById('pin-screen');
   screen.classList.add('visible');
   document.getElementById('pin-err').textContent='';
-  document.getElementById('pin-reset').style.display=mode==='verify'?'block':'none';
-  document.getElementById('pin-title').textContent=mode==='create'?'Crie um PIN de 4 dígitos':mode==='confirm'?'Confirme seu PIN':'Digite seu PIN';
+  document.getElementById('pin-profile-step').style.display='flex';
+  document.getElementById('pin-entry-step').style.display='none';
+  PIN_ENTRY='';PIN_FIRST='';PIN_LOADING=false;PIN_TARGET_PID=null;
+  renderPinProfileGrid();
   pinUpdateDots();
 }
-function hidePinScreen(){document.getElementById('pin-screen').classList.remove('visible');sessionStorage.setItem(PIN_SESSION,'1');}
-function pinUpdateDots(){for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);d.classList.toggle('filled',i<PIN_ENTRY.length);d.classList.remove('error');}}
-function pinSetLoading(on){PIN_LOADING=on;document.getElementById('pin-title').textContent=on?'Verificando…':(PIN_MODE==='create'?'Crie um PIN de 4 dígitos':PIN_MODE==='confirm'?'Confirme seu PIN':'Digite seu PIN');}
-function pinError(msg){
-  document.getElementById('pin-err').textContent=msg;
-  for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.add('error');
-  setTimeout(()=>{PIN_ENTRY='';PIN_LOADING=false;pinUpdateDots();for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('error');document.getElementById('pin-title').textContent=PIN_MODE==='create'?'Crie um PIN de 4 dígitos':PIN_MODE==='confirm'?'Confirme seu PIN':'Digite seu PIN';},700);
+function hidePinScreen(){
+  document.getElementById('pin-screen').classList.remove('visible');
+  if(PIN_TARGET_PID) sessionStorage.setItem(PIN_SESSION_KEY(PIN_TARGET_PID),'1');
 }
-function pinKey(digit){if(PIN_ENTRY.length>=4||PIN_LOADING)return;PIN_ENTRY+=digit;document.getElementById('pin-err').textContent='';pinUpdateDots();if(PIN_ENTRY.length===4)setTimeout(pinSubmit,120);}
-function pinDel(){if(PIN_LOADING)return;if(PIN_ENTRY.length>0){PIN_ENTRY=PIN_ENTRY.slice(0,-1);pinUpdateDots();}}
-async function pinSubmit(){
-  if(PIN_LOADING)return;
-  if(PIN_MODE==='verify'){
-    pinSetLoading(true);
-    try{const snap=await PIN_DOC().get();if(!snap.exists){pinError('Erro: PIN não encontrado.');return;}const entered=await pinHash(PIN_ENTRY);if(entered===snap.data().hash){hidePinScreen();afterPinOk();}else{pinError('PIN incorreto. Tente novamente.');}}
-    catch(e){pinError('Erro de conexão.');}
-  }else if(PIN_MODE==='create'){
-    PIN_FIRST=PIN_ENTRY;PIN_ENTRY='';PIN_MODE='confirm';document.getElementById('pin-title').textContent='Confirme seu PIN';document.getElementById('pin-reset').style.display='none';pinUpdateDots();
-  }else if(PIN_MODE==='confirm'){
-    if(PIN_ENTRY!==PIN_FIRST){PIN_FIRST='';PIN_MODE='create';document.getElementById('pin-title').textContent='Crie um PIN de 4 dígitos';pinError('PINs não coincidem.');return;}
-    pinSetLoading(true);
-    try{const hash=await pinHash(PIN_ENTRY);await PIN_DOC().set({hash,updatedAt:new Date().toISOString()});hidePinScreen();afterPinOk();toast('PIN criado!','ok');}
-    catch(e){pinError('Erro ao salvar PIN.');}
+
+function pinUpdateDots(){
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('pd'+i);
+    if(!d)continue;
+    d.classList.toggle('filled',i<PIN_ENTRY.length);
+    d.classList.remove('error');
   }
 }
+function pinSetLoading(on){
+  PIN_LOADING=on;
+  const titles={verify:'Verificando…',create:'Crie um PIN de 4 dígitos',confirm:'Confirme seu PIN'};
+  document.getElementById('pin-title').textContent=on?'Verificando…':titles[PIN_MODE]||'';
+}
+function pinError(msg){
+  document.getElementById('pin-err').textContent=msg;
+  for(let i=0;i<4;i++)document.getElementById('pd'+i)?.classList.add('error');
+  setTimeout(()=>{
+    PIN_ENTRY='';PIN_LOADING=false;pinUpdateDots();
+    for(let i=0;i<4;i++)document.getElementById('pd'+i)?.classList.remove('error');
+    const titles={verify:'Digite seu PIN',create:'Crie um PIN de 4 dígitos',confirm:'Confirme seu PIN'};
+    document.getElementById('pin-title').textContent=titles[PIN_MODE]||'';
+  },700);
+}
+function pinKey(digit){
+  if(PIN_ENTRY.length>=4||PIN_LOADING)return;
+  PIN_ENTRY+=digit;
+  document.getElementById('pin-err').textContent='';
+  pinUpdateDots();
+  if(PIN_ENTRY.length===4)setTimeout(pinSubmit,120);
+}
+function pinDel(){
+  if(PIN_LOADING)return;
+  if(PIN_ENTRY.length>0){PIN_ENTRY=PIN_ENTRY.slice(0,-1);pinUpdateDots();}
+}
+async function pinSubmit(){
+  if(PIN_LOADING||!PIN_TARGET_PID)return;
+  const pid=PIN_TARGET_PID;
+  if(PIN_MODE==='verify'){
+    pinSetLoading(true);
+    try{
+      const pinMap=await loadPinMap();
+      const hash=pinMap[pid];
+      if(!hash){pinError('Erro: PIN não encontrado.');return;}
+      const entered=await pinHash(PIN_ENTRY);
+      if(entered===hash){hidePinScreen();await enterProfile(pid);}
+      else{pinError('PIN incorreto. Tente novamente.');}
+    }catch(e){pinError('Erro de conexão.');}
+  }else if(PIN_MODE==='create'){
+    PIN_FIRST=PIN_ENTRY;PIN_ENTRY='';PIN_MODE='confirm';
+    document.getElementById('pin-title').textContent='Confirme seu PIN';
+    document.getElementById('pin-reset').style.display='none';
+    pinUpdateDots();
+  }else if(PIN_MODE==='confirm'){
+    if(PIN_ENTRY!==PIN_FIRST){PIN_FIRST='';PIN_MODE='create';document.getElementById('pin-title').textContent='Crie um PIN';pinError('PINs não coincidem.');return;}
+    pinSetLoading(true);
+    try{
+      const hash=await pinHash(PIN_ENTRY);
+      await savePinHash(pid,hash);
+      hidePinScreen();
+      toast('PIN criado!','ok');
+      await enterProfile(pid);
+    }catch(e){pinError('Erro ao salvar PIN.');}
+  }
+}
+
+async function enterProfile(pid){
+  ACTIVE_PID=pid;
+  localStorage.setItem('fos_active_pid',pid);
+  showLoader('Carregando…');
+  await loadProfileData(pid);
+  hideLoader();
+  rebuildSharedTxsForActiveProfile();
+  applyAllFixedToCurrentMonth();
+  loadNotifs();
+  startSharedNotifListener();
+  renderSidebar();renderTopbar();renderTabs();renderPanel();renderMobMonthBar();updateSideNav();updateBottomNav();
+}
+
 document.addEventListener('keydown',e=>{
   if(!document.getElementById('pin-screen').classList.contains('visible'))return;
+  if(document.getElementById('pin-entry-step').style.display==='none')return;
   if(e.key>='0'&&e.key<='9')pinKey(e.key);
   else if(e.key==='Backspace')pinDel();
   else if(e.key==='Enter'&&PIN_ENTRY.length===4)pinSubmit();
 });
 
-const MASTER_DOC=()=>FS.collection('app_config').doc('master');
-let MASTER_CB=null;
-async function pinResetPrompt(){
-  try{const snap=await MASTER_DOC().get();if(snap.exists){MASTER_CB=doResetPin;document.getElementById('master-modal-desc').textContent='Para redefinir o PIN, confirme a senha mestra.';document.getElementById('master-ok-btn').textContent='Redefinir PIN';document.getElementById('master-ok-btn').className='mo-btn mo-danger';openMasterModal();}else{MASTER_CB=doResetPin;document.getElementById('master-modal-desc').innerHTML='<strong>Nenhuma senha mestra definida.</strong><br>Defina uma agora.';document.getElementById('master-ok-btn').textContent='Definir e Redefinir PIN';document.getElementById('master-ok-btn').className='mo-btn mo-purple';openMasterModal(true);}}catch(e){toast('Erro de conexão.','err');}
+function promptSwitchProfile(){
+  document.getElementById('switch-profile-overlay').classList.add('open');
+  closeDrawer();
+  const list=document.getElementById('switch-profile-list');
+  list.innerHTML=PROFILES.map(p=>{
+    const isActive=p.id===ACTIVE_PID;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${isActive?'rgba(184,240,58,.08)':'var(--c2)'};border:1px solid ${isActive?'var(--green)':'var(--b1)'};border-radius:9px;cursor:${isActive?'default':'pointer'};transition:all .15s"
+      ${!isActive?`onclick="document.getElementById('switch-profile-overlay').classList.remove('open');switchProfile('${p.id}')"
+      onmouseenter="if(!${isActive})this.style.borderColor='var(--b2)'" onmouseleave="if(!${isActive})this.style.borderColor='var(--b1)'"`:''}>
+      ${avHTML(p,36)}
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${esc(p.name)}</div>
+        <div style="font-size:10px;color:var(--t3)">${isActive?'✓ Ativo agora':'Clique para entrar'}</div>
+      </div>
+      ${!isActive?`<span style="font-size:10px;color:var(--t3)">🔒 PIN</span>`:''}
+    </div>`;
+  }).join('');
 }
-function openMasterModal(isCreate=false){document.getElementById('master-input').value='';document.getElementById('master-err').textContent='';document.getElementById('master-overlay').classList.add('open');setTimeout(()=>document.getElementById('master-input').focus(),100);document.getElementById('master-overlay')._isCreate=isCreate;}
-function closeMasterModal(){document.getElementById('master-overlay').classList.remove('open');MASTER_CB=null;}
+
+/* ── Profile switch inside dashboard requires PIN ── */
+async function switchProfile(pid){
+  if(pid===ACTIVE_PID)return;
+  PIN_TARGET_PID=pid;
+  const p=PROFILES.find(x=>x.id===pid);if(!p)return;
+  const pinMap=await loadPinMap();
+  const hasPin=!!pinMap[pid];
+
+  // Show PIN screen
+  const screen=document.getElementById('pin-screen');
+  screen.classList.add('visible');
+  document.getElementById('pin-profile-step').style.display='none';
+  document.getElementById('pin-entry-step').style.display='flex';
+  const avEl=document.getElementById('pin-profile-av-mini');
+  avEl.style.background=p.photo?'transparent':p.color;
+  avEl.innerHTML=p.photo
+    ?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"/>`
+    :`<span style="font-size:14px;font-weight:700;color:#0d0f14;display:flex;align-items:center;justify-content:center;height:100%">${p.name[0].toUpperCase()}</span>`;
+  document.getElementById('pin-profile-name-lbl').textContent=p.name;
+  PIN_ENTRY='';PIN_FIRST='';PIN_LOADING=false;
+  document.getElementById('pin-err').textContent='';
+  pinUpdateDots();
+  // New profiles without PIN must create one — no free pass
+  showPinStep(hasPin?'verify':'create');
+}
+
+/* ── Forgot PIN / Master Password ── */
+const MASTER_DOC=()=>FS.collection('app_config').doc('master');
+
+let _masterResolve=null;
+
+function openMasterModal(desc){
+  return new Promise(resolve=>{
+    _masterResolve=resolve;
+    document.getElementById('master-modal-desc').textContent=desc;
+    document.getElementById('master-ok-btn').textContent='Confirmar';
+    document.getElementById('master-input').value='';
+    document.getElementById('master-err').textContent='';
+    document.getElementById('master-overlay').classList.add('open');
+    setTimeout(()=>document.getElementById('master-input').focus(),150);
+  });
+}
+function closeMasterModal(result=null){
+  document.getElementById('master-overlay').classList.remove('open');
+  if(_masterResolve){_masterResolve(result);_masterResolve=null;}
+}
 async function confirmMasterPassword(){
   const val=document.getElementById('master-input').value.trim();
-  if(!val){document.getElementById('master-err').textContent='Digite a senha mestra.';return;}
-  if(val.length<4){document.getElementById('master-err').textContent='Mínimo 4 caracteres.';return;}
-  const isCreate=document.getElementById('master-overlay')._isCreate;
+  if(!val||val.length<4){document.getElementById('master-err').textContent='Mínimo 4 caracteres.';return;}
   try{
-    if(isCreate){const hash=await pinHash(val);await MASTER_DOC().set({hash,updatedAt:new Date().toISOString()});closeMasterModal();if(MASTER_CB)await MASTER_CB();}
-    else{const snap=await MASTER_DOC().get();if(!snap.exists){document.getElementById('master-err').textContent='Erro interno.';return;}const entered=await pinHash(val);if(entered!==snap.data().hash){document.getElementById('master-err').textContent='Senha incorreta.';document.getElementById('master-input').value='';document.getElementById('master-input').focus();return;}closeMasterModal();if(MASTER_CB)await MASTER_CB();}
+    const snap=await MASTER_DOC().get();
+    if(!snap.exists){document.getElementById('master-err').textContent='Senha mestra não configurada.';return;}
+    const entered=await pinHash(val);
+    if(entered!==snap.data().hash){
+      document.getElementById('master-err').textContent='Senha incorreta. Tente novamente.';
+      document.getElementById('master-input').value='';
+      document.getElementById('master-input').focus();
+      return;
+    }
+    closeMasterModal(true);
   }catch(e){document.getElementById('master-err').textContent='Erro de conexão.';}
 }
-async function doResetPin(){try{await PIN_DOC().delete();sessionStorage.removeItem(PIN_SESSION);toast('PIN removido. Crie um novo.','inf');showPinScreen('create');}catch(e){toast('Erro ao remover PIN.','err');}}
 
-let afterPinOk=()=>{};
+async function askMasterPassword(desc){
+  // Returns true if master password confirmed, false if cancelled
+  const result=await openMasterModal(desc);
+  return result===true;
+}
+
+async function pinResetPrompt(){
+  if(!PIN_TARGET_PID){toast('Selecione um perfil primeiro.','err');return;}
+  const pid=PIN_TARGET_PID;
+  const name=PROFILES.find(p=>p.id===pid)?.name||'este perfil';
+  // Disable PIN input while modal is open
+  PIN_LOADING=true;
+  const ok=await askMasterPassword(`Confirme a senha mestra para redefinir o PIN de "${name}".`);
+  PIN_LOADING=false;
+  if(!ok)return;
+  await doResetPin(pid);
+}
+
+async function openChangePinModal(){
+  if(!ACTIVE_PID)return;
+  const p=PROFILES.find(x=>x.id===ACTIVE_PID);if(!p)return;
+  try{
+    const snap=await MASTER_DOC().get();
+    if(!snap.exists){await doResetPin(ACTIVE_PID);return;}
+    PIN_LOADING=true;
+    const ok=await askMasterPassword(`Confirme a senha mestra para alterar o PIN de "${p.name}".`);
+    PIN_LOADING=false;
+    if(!ok)return;
+    await doResetPin(ACTIVE_PID);
+  }catch(e){PIN_LOADING=false;toast('Erro de conexão.','err');}
+}
+
+async function doResetPin(pid){
+  if(!pid){toast('Erro: perfil não identificado.','err');return;}
+  try{
+    await deletePinHash(pid);
+    sessionStorage.removeItem(PIN_SESSION_KEY(pid));
+    // Force full PIN creation flow
+    PIN_TARGET_PID=pid;
+    PIN_ENTRY='';PIN_FIRST='';PIN_LOADING=false;
+    PIN_MODE='create';
+    const p=PROFILES.find(x=>x.id===pid);
+    if(p){
+      const av=document.getElementById('pin-profile-av-mini');
+      av.style.background=p.photo?'transparent':p.color;
+      av.innerHTML=p.photo
+        ?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"/>`
+        :`<span style="font-size:14px;font-weight:700;color:#0d0f14;display:flex;align-items:center;justify-content:center;height:100%">${p.name[0].toUpperCase()}</span>`;
+      document.getElementById('pin-profile-name-lbl').textContent=p.name;
+    }
+    document.getElementById('pin-profile-step').style.display='none';
+    document.getElementById('pin-entry-step').style.display='flex';
+    document.getElementById('pin-title').textContent='Crie um novo PIN';
+    document.getElementById('pin-reset').style.display='none';
+    document.getElementById('pin-err').textContent='';
+    pinUpdateDots();
+    document.getElementById('pin-screen').classList.add('visible');
+    toast('PIN removido. Crie um novo PIN de 4 dígitos.','ok');
+  }catch(e){toast('Erro ao remover PIN.','err');}
+}
+
+function lockProfile(){
+  if(!ACTIVE_PID)return;
+  sessionStorage.removeItem(PIN_SESSION_KEY(ACTIVE_PID));
+  if(NOTIF_UNSUBSCRIBE){NOTIF_UNSUBSCRIBE();NOTIF_UNSUBSCRIBE=null;}
+  const pid=ACTIVE_PID;
+  ACTIVE_PID=null;
+  PIN_TARGET_PID=pid;
+  const p=PROFILES.find(x=>x.id===pid);
+  if(p){
+    const av=document.getElementById('pin-profile-av-mini');
+    av.style.background=p.photo?'transparent':p.color;
+    av.innerHTML=p.photo
+      ?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"/>`
+      :`<span style="font-size:14px;font-weight:700;color:#0d0f14;display:flex;align-items:center;justify-content:center;height:100%">${p.name[0].toUpperCase()}</span>`;
+    document.getElementById('pin-profile-name-lbl').textContent=p.name;
+  }
+  document.getElementById('pin-profile-step').style.display='none';
+  document.getElementById('pin-entry-step').style.display='flex';
+  document.getElementById('pin-screen').classList.add('visible');
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));
+  PIN_ENTRY='';PIN_FIRST='';PIN_LOADING=false;
+  document.getElementById('pin-err').textContent='';
+  pinUpdateDots();
+  showPinStep('verify');
+  toast('Perfil bloqueado.','inf');
+}
+
 
 (async function boot(){
   const prefs=JSON.parse(localStorage.getItem('fos_prefs')||'{}');
@@ -2968,29 +3480,27 @@ let afterPinOk=()=>{};
   if(prefs.view!==undefined){PREFS.view=prefs.view;if(PREFS.view!==12&&PREFS.view!==13&&PREFS.view!==14)LAST_MONTH=PREFS.view;}
   document.getElementById('year-lbl').textContent=PREFS.year;
 
-  afterPinOk=async function(){
-    showLoader('Carregando…');
+  showLoader('Verificando…');
+  try{
     await Promise.all([loadProfiles(),loadSharedAccounts(),loadCategories(),loadCards()]);
+
+    // Always set master password to 120203
+    const masterHash=await pinHash('120203');
+    await MASTER_DOC().set({hash:masterHash,updatedAt:new Date().toISOString()});
+
     hideLoader();
     const savedPid=localStorage.getItem('fos_active_pid');
     const validProf=PROFILES.find(p=>p.id===savedPid);
-    if(validProf){
-      ACTIVE_PID=validProf.id;
-      await loadProfileData(ACTIVE_PID);
-      rebuildSharedTxsForActiveProfile();
-      applyAllFixedToCurrentMonth();
-      renderSidebar();renderTopbar();renderTabs();renderPanel();updateSideNav();updateBottomNav();
-    }else{showProfileScreen();}
-  };
-
-  if(sessionStorage.getItem(PIN_SESSION)){await afterPinOk();return;}
-  showLoader('Verificando acesso…');
-  try{
-    const snap=await PIN_DOC().get();
+    if(validProf&&sessionStorage.getItem(PIN_SESSION_KEY(validProf.id))){
+      await enterProfile(validProf.id);
+    } else {
+      showPinScreen();
+    }
+  }catch(e){
+    console.error('boot error:',e);
     hideLoader();
-    if(snap.exists)showPinScreen('verify');
-    else showPinScreen('create');
-  }catch(e){hideLoader();showPinScreen('verify');setTimeout(()=>{document.getElementById('pin-err').textContent='Sem conexão com o servidor.';},200);}
+    showPinScreen();
+  }
 })();
 </script>
 </body>
