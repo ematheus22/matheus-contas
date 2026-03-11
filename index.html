@@ -671,6 +671,19 @@ input[type=range].crop-slider{width:100%;accent-color:var(--purple);}
         </div>
         <div class="mo-fg"><div class="mo-lbl">Data</div><input class="field" id="mo-date" type="date" style="width:100%"/></div>
       </div>
+      <div class="mo-fg">
+        <div class="mo-lbl">Banco / Conta <span style="color:var(--t3);font-weight:400">(opcional)</span></div>
+        <div style="position:relative;display:flex;align-items:center;gap:8px">
+          <div id="mo-bank-logo" style="width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px"></div>
+          <input class="field" id="mo-bank" style="flex:1" placeholder="Ex: Nubank, Inter, Itaú…" oninput="updateBankLogo('mo-bank','mo-bank-logo')" autocomplete="off" list="bank-suggestions"/>
+          <datalist id="bank-suggestions">
+            <option value="Nubank"/><option value="Inter"/><option value="Itaú"/><option value="Bradesco"/>
+            <option value="Santander"/><option value="Caixa"/><option value="Banco do Brasil"/>
+            <option value="C6 Bank"/><option value="BTG"/><option value="XP"/><option value="PicPay"/>
+            <option value="Mercado Pago"/><option value="Neon"/><option value="Next"/>
+          </datalist>
+        </div>
+      </div>
     </div>
     <div class="mo-foot">
       <button class="mo-btn mo-cancel" onclick="closeEditModal()">Cancelar</button>
@@ -1309,8 +1322,9 @@ function rebuildSharedTxsForActiveProfile(){
     }
   }
 
-  // 2) Re-inject correct entries for active profile
-  for(const sa of SHARED_ACCOUNTS){
+  // 2) Re-inject correct entries for active profile (only accounts where profile is member)
+  const myAccounts=SHARED_ACCOUNTS.filter(sa=>(sa.members||[]).some(m=>m.pid===ACTIVE_PID));
+  for(const sa of myAccounts){
     for(const exp of (sa.expenses||[])){
       const dateStr  = exp.date||today();
       const parts    = dateStr.split('-').map(Number);
@@ -1475,13 +1489,12 @@ function renderTopbar(){
 
 /* ══ ADD PROFILE ═══════════════════════════════════════════ */
 function openAddProfileFromLogin(){
-  // Called from login screen — after creating, go straight to PIN setup for new profile
   NP_COLOR=PALETTE[Math.floor(Math.random()*PALETTE.length)];
   NP_PHOTO=null;
   document.getElementById('np-name').value='';
   buildColorPicker();updateProfilePreview();
-  // Mark that we came from login so confirmAddProfile redirects correctly
   document.getElementById('add-profile-overlay')._fromLogin=true;
+  document.getElementById('add-profile-overlay').style.zIndex='700';
   document.getElementById('add-profile-overlay').classList.add('open');
 }
 
@@ -1490,9 +1503,14 @@ function openAddProfileModal(){
   document.getElementById('np-name').value='';
   buildColorPicker();updateProfilePreview();
   document.getElementById('add-profile-overlay')._fromLogin=false;
+  document.getElementById('add-profile-overlay').style.zIndex='';
   document.getElementById('add-profile-overlay').classList.add('open');
 }
-function closeAddProfileModal(){document.getElementById('add-profile-overlay').classList.remove('open');}
+function closeAddProfileModal(){
+  const el=document.getElementById('add-profile-overlay');
+  el.classList.remove('open');
+  el.style.zIndex='';
+}
 function buildColorPicker(){
   const el=document.getElementById('color-picker');
   el.innerHTML=PALETTE.map(c=>`<div class="color-swatch ${c===NP_COLOR?'selected':''}" style="background:${c}" onclick="pickColor('${c}')"></div>`).join('');
@@ -1541,10 +1559,16 @@ let DEL_PID_PENDING=null;
 function promptDelProfile(pid){
   DEL_PID_PENDING=pid;
   const p=PROFILES.find(x=>x.id===pid);
-  document.getElementById('del-profile-msg').textContent=`Excluir o perfil "${p?.name}"? Todos os dados financeiros serão apagados.`;
+  document.getElementById('del-profile-msg').textContent=`Excluir o perfil "${p?.name}"? Todos os dados financeiros serão apagados permanentemente.`;
+  // Raise above switch-profile-overlay (also z-index 50, later in DOM)
+  document.getElementById('del-profile-overlay').style.zIndex='800';
   document.getElementById('del-profile-overlay').classList.add('open');
 }
-function closeDelProfileModal(){DEL_PID_PENDING=null;document.getElementById('del-profile-overlay').classList.remove('open');}
+function closeDelProfileModal(){
+  DEL_PID_PENDING=null;
+  document.getElementById('del-profile-overlay').classList.remove('open');
+  document.getElementById('del-profile-overlay').style.zIndex='';
+}
 async function confirmDelProfile(){
   if(!DEL_PID_PENDING)return;
   const pid=DEL_PID_PENDING, name=PROFILES.find(x=>x.id===pid)?.name||'';
@@ -1555,14 +1579,18 @@ async function confirmDelProfile(){
     await PROFILES_COL.doc(pid).delete();
     PROFILES=PROFILES.filter(x=>x.id!==pid);
     localStorage.removeItem('fos_data_'+pid);
+    localStorage.removeItem('fos_active_pid');
+    sessionStorage.removeItem(PIN_SESSION_KEY(pid));
     localStorage.setItem('fos_profiles',JSON.stringify(PROFILES));
     setSyncStatus('ok','Sincronizado');
     toast(`Perfil "${name}" excluído.`,'inf');
-    if(ACTIVE_PID===pid){
-      ACTIVE_PID=null;
-      if(PROFILES.length)await selectProfile(PROFILES[0].id);
-      else showProfileScreen();
-    }else{renderSidebar();}
+    // Always go back to PIN screen — never auto-enter any profile
+    ACTIVE_PID=null;
+    if(NOTIF_UNSUBSCRIBE){NOTIF_UNSUBSCRIBE();NOTIF_UNSUBSCRIBE=null;}
+    // Close all overlays
+    document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));
+    // Show PIN screen fresh
+    showPinScreen();
   }catch(e){toast('Erro ao excluir.','err');setSyncStatus('err','Erro');}
 }
 
@@ -1837,8 +1865,9 @@ function buildRow(t){
       :`<span class="shared-tx-badge">🤝 Compartilhado</span>`)
     :'';
   const canDelete=!t._sharedAccountId;
+  const bankBadge=t.bank?`<span style="display:inline-flex;align-items:center;gap:3px;margin-left:5px;vertical-align:middle" title="${esc(t.bank)}">${getBankSVG(t.bank)}</span>`:'';
   return `<tr>
-    <td><span class="type-badge ${t.type==='in'?'badge-in':'badge-out'}">${t.type==='in'?'↑':'↓'}</span>${esc(t.desc)}${sharedBadge}</td>
+    <td><span class="type-badge ${t.type==='in'?'badge-in':'badge-out'}">${t.type==='in'?'↑':'↓'}</span>${esc(t.desc)}${sharedBadge}${bankBadge}</td>
     <td style="color:var(--t3)">${esc(t.cat)}</td>
     <td style="color:var(--t3)">${d}</td>
     <td class="${t.type==='in'?'v-pos':'v-neg'}">${amt}</td>
@@ -1948,7 +1977,10 @@ function destroyCharts(){
 
 /* ══ SHARED ACCOUNTS VIEW ══════════════════════════════════ */
 function buildShared(){
-  if(!SHARED_ACCOUNTS.length){
+  // Only show accounts where ACTIVE_PID is a member
+  const myAccounts=SHARED_ACCOUNTS.filter(sa=>(sa.members||[]).some(m=>m.pid===ACTIVE_PID));
+
+  if(!myAccounts.length){
     return `
     <div class="shared-header"><h2>🤝 Contas Compartilhadas</h2><button class="btn-purple" onclick="openNewShared()">+ Nova Conta</button></div>
     <div class="shared-empty">
@@ -1960,7 +1992,7 @@ function buildShared(){
   }
 
   // Card filter bar (only if any cards exist OR any card expenses exist)
-  const anyCardExpenses=SHARED_ACCOUNTS.some(sa=>(sa.expenses||[]).some(e=>e.paymentType==='card'));
+  const anyCardExpenses=myAccounts.some(sa=>(sa.expenses||[]).some(e=>e.paymentType==='card'));
   const cardFilterBar=(CARDS.length||anyCardExpenses)?`
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;background:var(--c1);border:1px solid var(--b1);border-radius:9px">
       <span style="font-size:11px;font-weight:600;color:var(--t3)">💳 FILTRAR:</span>
@@ -1970,7 +2002,7 @@ function buildShared(){
       <button onclick="openManageCards()" style="margin-left:auto;background:rgba(91,156,246,.1);border:1px solid rgba(91,156,246,.2);color:var(--blue);border-radius:5px;padding:4px 9px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit">⚙ Cartões</button>
     </div>`:'';
 
-  const cards=SHARED_ACCOUNTS.map(sa=>{
+  const cards=myAccounts.map(sa=>{
     const members=[...(sa.members||[]),...(sa.externalMembers||[])];
     let expenses=sa.expenses||[];
 
@@ -2078,6 +2110,11 @@ function buildSharedExpRow(e,saId){
   const cardBadge=isCard
     ?`<span style="background:rgba(91,156,246,.15);color:var(--blue);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.4px">💳 ${e.cardName||'CARTÃO'}</span>`
     :`<span style="background:rgba(58,245,160,.1);color:var(--green2);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.4px">💵 DÉBITO/PIX</span>`;
+  // Any member of the account can edit/delete expenses
+  const isMember=true; // already filtered to only show accounts where ACTIVE_PID is member
+  const actionBtns=`
+    <button class="sc-exp-del" style="background:rgba(91,156,246,.12);color:var(--blue);border-color:rgba(91,156,246,.2)" onclick="openEditSharedExp('${saId}','${e.id}')">✏️ editar</button>
+    <button class="sc-exp-del" onclick="deleteSharedExp('${saId}','${e.id}')">✕ remover</button>`;
   return `<div class="sc-exp-row">
     <div class="sc-exp-left">
       <div class="sc-exp-desc" style="display:flex;align-items:center;gap:6px">${esc(e.desc)} ${cardBadge}</div>
@@ -2085,11 +2122,8 @@ function buildSharedExpRow(e,saId){
       ${splitDetail?`<div class="sc-exp-splits">${splitDetail}</div>`:''}
     </div>
     <div class="sc-exp-right">
-      <div class="sc-exp-val ${isCard?'':''}">R$ ${fmt(e.val)}</div>
-      <div style="display:flex;gap:4px;margin-top:4px">
-        <button class="sc-exp-del" style="background:rgba(91,156,246,.12);color:var(--blue);border-color:rgba(91,156,246,.2)" onclick="openEditSharedExp('${saId}','${e.id}')">✏️ editar</button>
-        <button class="sc-exp-del" onclick="deleteSharedExp('${saId}','${e.id}')">✕ remover</button>
-      </div>
+      <div class="sc-exp-val">R$ ${fmt(e.val)}</div>
+      ${actionBtns?`<div style="display:flex;gap:4px;margin-top:4px">${actionBtns}</div>`:''}
     </div>
   </div>`;
 }
@@ -2105,9 +2139,10 @@ function updateCardsBadge(){
 
 /* ══ CARDS PANEL (view 14) ═════════════════════════════════ */
 function buildCardsPanel(){
-  // Collect all card expenses from all shared accounts
+  // Only show expenses from accounts where ACTIVE_PID is a member
+  const myAccounts=SHARED_ACCOUNTS.filter(sa=>(sa.members||[]).some(m=>m.pid===ACTIVE_PID));
   const allCardExp=[];
-  for(const sa of SHARED_ACCOUNTS){
+  for(const sa of myAccounts){
     for(const e of (sa.expenses||[])){
       if(e.paymentType==='card') allCardExp.push({...e,_saName:sa.name,_saId:sa.id});
     }
@@ -2316,7 +2351,11 @@ async function confirmNewShared(){
   const externalMembers=NS_MEMBERS.filter(m=>m.type==='external').map(m=>({id:m.id,name:m.name}));
   const sa={name,members:profileMembers,externalMembers,expenses:[],createdAt:new Date().toISOString()};
   const saved=await saveSharedAccount(sa);
-  if(saved){SHARED_ACCOUNTS.push(saved);updateSharedBadge();closeNewShared();toast(`Conta "${name}" criada!`,'ok');renderPanel();}
+  if(saved){
+    // Add to local array only if listener hasn't already added it
+    if(!SHARED_ACCOUNTS.find(a=>a.id===saved.id)) SHARED_ACCOUNTS.push(saved);
+    updateSharedBadge();closeNewShared();toast(`Conta "${name}" criada!`,'ok');renderPanel();
+  }
 }
 
 /* ══ SHARED EXPENSE (with split control) ══════════════════ */
@@ -2420,6 +2459,9 @@ function openSharedExp(sid){
 function closeSharedExp(){SE_EDIT_ID=null;document.getElementById('se-overlay').classList.remove('open');}
 
 function openEditSharedExp(sid, expId){
+  // Close history overlay if open so se-overlay appears on top
+  document.getElementById('shared-history-overlay').classList.remove('open');
+
   const sa=SHARED_ACCOUNTS.find(a=>a.id===sid);if(!sa)return;
   const exp=(sa.expenses||[]).find(e=>e.id===expId);if(!exp)return;
   SE_EDIT_ID=expId;
@@ -2737,6 +2779,8 @@ function openEditModal(id){
   document.getElementById('mo-val').value=t.val;
   document.getElementById('mo-cat').value=t.cat;
   document.getElementById('mo-date').value=t.date||today();
+  const bankEl=document.getElementById('mo-bank');
+  if(bankEl){bankEl.value=t.bank||'';updateBankLogo('mo-bank','mo-bank-logo');}
   refreshEditBtns();
   document.getElementById('edit-overlay').classList.add('open');
 }
@@ -2751,10 +2795,12 @@ async function confirmEdit(){
   const desc=(document.getElementById('mo-desc').value||'').trim();
   const val=parseFloat(document.getElementById('mo-val').value||'');
   const cat=(document.getElementById('mo-cat').value||'').trim()||l[i].cat;
+  const bank=(document.getElementById('mo-bank')?.value||'').trim();
   if(!desc){toast('Informe a descrição.','err');return;}
   if(isNaN(val)||val<=0){toast('Valor inválido.','err');return;}
   if(cat&&!CATEGORIES.includes(cat)) await addCategory(cat);
   l[i]={...l[i],type:EDIT_TYPE,desc,val,cat,date:document.getElementById('mo-date').value||l[i].date};
+  if(bank)l[i].bank=bank; else delete l[i].bank;
   closeEditModal();saveProfileData();toast('Atualizado.','ok');renderTabs();renderPanel();
 }
 
@@ -2995,6 +3041,36 @@ function toast(msg,type='inf'){
 function fmt(n){return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtK(v){return Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v;}
 function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
+
+/* ── Bank logos ── */
+const BANK_SVGS={
+  nubank:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#820AD1"/><path d="M10 27V13l3.5 2.2v7.4l6.5-9.6 6.5 9.6v-7.4L30 13v14L20 12 10 27z" fill="#fff"/></svg>`,
+  inter:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#FF7A00"/><circle cx="20" cy="20" r="10" fill="#fff"/><circle cx="20" cy="20" r="6" fill="#FF7A00"/></svg>`,
+  itaú:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#003087"/><text x="20" y="27" text-anchor="middle" fill="#FF6B00" font-size="14" font-weight="bold" font-family="Arial">itaú</text></svg>`,
+  bradesco:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#CC092F"/><text x="20" y="27" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" font-family="Arial">BRADESCO</text></svg>`,
+  santander:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#EC0000"/><text x="20" y="27" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" font-family="Arial">Santander</text></svg>`,
+  caixa:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#005CA9"/><text x="20" y="28" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" font-family="Arial">CAIXA</text></svg>`,
+  'banco do brasil':`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#003F87"/><circle cx="20" cy="20" r="9" fill="#FFCC00" stroke="#fff" stroke-width="1.5"/><text x="20" y="24" text-anchor="middle" fill="#003F87" font-size="8" font-weight="bold" font-family="Arial">BB</text></svg>`,
+  bb:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#003F87"/><circle cx="20" cy="20" r="9" fill="#FFCC00" stroke="#fff" stroke-width="1.5"/><text x="20" y="24" text-anchor="middle" fill="#003F87" font-size="8" font-weight="bold" font-family="Arial">BB</text></svg>`,
+  'c6 bank':`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#232323"/><text x="20" y="27" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold" font-family="Arial">C6</text></svg>`,
+  c6:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#232323"/><text x="20" y="27" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold" font-family="Arial">C6</text></svg>`,
+  picpay:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#21C25E"/><text x="20" y="27" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold" font-family="Arial">PicPay</text></svg>`,
+  'mercado pago':`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#009EE3"/><text x="20" y="24" text-anchor="middle" fill="#fff" font-size="7" font-weight="bold" font-family="Arial">Mercado</text><text x="20" y="33" text-anchor="middle" fill="#fff" font-size="7" font-weight="bold" font-family="Arial">Pago</text></svg>`,
+  neon:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#21D4B3"/><text x="20" y="27" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold" font-family="Arial">neon</text></svg>`,
+  next:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#00C900"/><text x="20" y="27" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold" font-family="Arial">next</text></svg>`,
+  btg:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#0B3D91"/><text x="20" y="27" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold" font-family="Arial">BTG</text></svg>`,
+  xp:`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#000"/><text x="20" y="27" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold" font-family="Arial">XP</text></svg>`,
+};
+function getBankSVG(name){
+  if(!name)return '';
+  const key=name.toLowerCase().trim();
+  return BANK_SVGS[key]||`<svg width="20" height="20" viewBox="0 0 40 40"><rect width="40" height="40" rx="8" fill="#464f63"/><text x="20" y="27" text-anchor="middle" fill="#fff" font-size="13" font-family="Arial">${(name[0]||'B').toUpperCase()}</text></svg>`;
+}
+function updateBankLogo(inputId,logoId){
+  const val=document.getElementById(inputId)?.value||'';
+  const el=document.getElementById(logoId);
+  if(el)el.innerHTML=val?getBankSVG(val):'';
+}
 Chart.defaults.font.family='Inter';
 
 /* ══ MODAL CLOSE ON BACKDROP ═══════════════════════════════ */
@@ -3102,9 +3178,8 @@ function startSharedNotifListener(){
     snap.docChanges().forEach(change=>{
       if(change.type==='added'||change.type==='modified'){
         const sa={id:change.doc.id,...change.doc.data()};
-        // Update local copy
         const idx=SHARED_ACCOUNTS.findIndex(a=>a.id===sa.id);
-        if(idx>=0)SHARED_ACCOUNTS[idx]=sa;
+        if(idx>=0) SHARED_ACCOUNTS[idx]=sa;
         else SHARED_ACCOUNTS.push(sa);
 
         // Check for new expenses that involve ACTIVE_PID as non-payer
@@ -3324,18 +3399,23 @@ document.addEventListener('keydown',e=>{
 function promptSwitchProfile(){
   document.getElementById('switch-profile-overlay').classList.add('open');
   closeDrawer();
+  renderSwitchProfileList();
+}
+function renderSwitchProfileList(){
   const list=document.getElementById('switch-profile-list');
   list.innerHTML=PROFILES.map(p=>{
     const isActive=p.id===ACTIVE_PID;
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${isActive?'rgba(184,240,58,.08)':'var(--c2)'};border:1px solid ${isActive?'var(--green)':'var(--b1)'};border-radius:9px;cursor:${isActive?'default':'pointer'};transition:all .15s"
-      ${!isActive?`onclick="document.getElementById('switch-profile-overlay').classList.remove('open');switchProfile('${p.id}')"
-      onmouseenter="if(!${isActive})this.style.borderColor='var(--b2)'" onmouseleave="if(!${isActive})this.style.borderColor='var(--b1)'"`:''}>
-      ${avHTML(p,36)}
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600">${esc(p.name)}</div>
-        <div style="font-size:10px;color:var(--t3)">${isActive?'✓ Ativo agora':'Clique para entrar'}</div>
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${isActive?'rgba(184,240,58,.08)':'var(--c2)'};border:1px solid ${isActive?'var(--green)':'var(--b1)'};border-radius:9px;transition:all .15s">
+      <div style="flex:1;display:flex;align-items:center;gap:10px;cursor:${isActive?'default':'pointer'}"
+        ${!isActive?`onclick="document.getElementById('switch-profile-overlay').classList.remove('open');switchProfile('${p.id}')"`:''}
+        onmouseenter="if(!${isActive})this.parentElement.style.borderColor='var(--b2)'" onmouseleave="if(!${isActive})this.parentElement.style.borderColor='var(--b1)'">
+        ${avHTML(p,36)}
+        <div>
+          <div style="font-size:13px;font-weight:600">${esc(p.name)}</div>
+          <div style="font-size:10px;color:var(--t3)">${isActive?'✓ Ativo agora':'🔒 clique para entrar'}</div>
+        </div>
       </div>
-      ${!isActive?`<span style="font-size:10px;color:var(--t3)">🔒 PIN</span>`:''}
+      ${isActive&&PROFILES.length>1?`<button onclick="event.stopPropagation();promptDelProfile('${p.id}')" title="Excluir meu perfil" style="flex-shrink:0;width:28px;height:28px;border-radius:6px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>`:''}
     </div>`;
   }).join('');
 }
