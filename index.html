@@ -487,8 +487,8 @@ input[type=range].crop-slider{width:100%;accent-color:var(--purple);}
     <div class="pin-logo">Finance<span>OS</span></div>
     <div class="pin-tagline">Dashboard Financeiro</div>
     <div style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:24px;text-align:center">Quem é você?</div>
-    <div id="pin-profile-grid" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:24px"></div>
-    <div style="font-size:10px;color:var(--t3);text-align:center">Selecione seu perfil para entrar</div>
+    <div id="pin-profile-grid" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:20px"></div>
+    <button onclick="openAddProfileFromLogin()" style="margin-top:4px;padding:9px 22px;border-radius:30px;background:transparent;border:1px dashed var(--b2);color:var(--t3);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseleave="this.style.borderColor='var(--b2)';this.style.color='var(--t3)'">＋ Criar novo perfil</button>
   </div>
   <!-- Step 2: PIN entry -->
   <div id="pin-entry-step" style="display:none;flex-direction:column;align-items:center">
@@ -1474,10 +1474,22 @@ function renderTopbar(){
 }
 
 /* ══ ADD PROFILE ═══════════════════════════════════════════ */
+function openAddProfileFromLogin(){
+  // Called from login screen — after creating, go straight to PIN setup for new profile
+  NP_COLOR=PALETTE[Math.floor(Math.random()*PALETTE.length)];
+  NP_PHOTO=null;
+  document.getElementById('np-name').value='';
+  buildColorPicker();updateProfilePreview();
+  // Mark that we came from login so confirmAddProfile redirects correctly
+  document.getElementById('add-profile-overlay')._fromLogin=true;
+  document.getElementById('add-profile-overlay').classList.add('open');
+}
+
 function openAddProfileModal(){
   NP_COLOR=PALETTE[0]; NP_PHOTO=null;
   document.getElementById('np-name').value='';
   buildColorPicker();updateProfilePreview();
+  document.getElementById('add-profile-overlay')._fromLogin=false;
   document.getElementById('add-profile-overlay').classList.add('open');
 }
 function closeAddProfileModal(){document.getElementById('add-profile-overlay').classList.remove('open');}
@@ -1501,6 +1513,7 @@ function updateProfilePreview(){
 async function confirmAddProfile(){
   const name=document.getElementById('np-name')?.value.trim();
   if(!name){toast('Informe um nome.','err');return;}
+  const fromLogin=document.getElementById('add-profile-overlay')._fromLogin;
   try{
     setSyncStatus('ing','Salvando…');
     const data={name,color:NP_COLOR,createdAt:new Date().toISOString()};
@@ -1510,10 +1523,16 @@ async function confirmAddProfile(){
     PROFILES.push(newP);
     localStorage.setItem('fos_profiles',JSON.stringify(PROFILES));
     closeAddProfileModal();
-    renderSidebar();renderProfileGrid();
     setSyncStatus('ok','Sincronizado');
     toast(`Perfil "${name}" criado.`,'ok');
-    await switchProfile(ref.id);
+    if(fromLogin){
+      // Go to PIN setup for this new profile from login screen
+      renderPinProfileGrid();
+      await selectPinProfile(ref.id);
+    }else{
+      renderSidebar();renderProfileGrid();
+      await switchProfile(ref.id);
+    }
   }catch(e){toast('Erro ao criar perfil.','err');setSyncStatus('err','Erro');}
 }
 
